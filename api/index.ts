@@ -9,6 +9,14 @@ import dotenv from 'dotenv';
 import * as userValidator from '../server/user/middleware';
 import {userRouter} from '../server/user/router';
 import {freetRouter} from '../server/freet/router';
+import {likeRouter} from '../server/like/router';
+import {followRouter} from '../server/follow/router';
+import {refreetRouter} from '../server/refreet/router';
+import {commentRouter} from '../server/comment/router';
+import {feedRouter} from '../server/feed/router';
+import {searchRouter} from '../server/search/router';
+import {contestCredibilityRouter} from '../server/contestCredibility/router';
+import {structuredThreadRouter} from '../server/structuredThread/router';
 import MongoStore from 'connect-mongo';
 
 // Load environmental variables
@@ -70,6 +78,14 @@ app.use(userValidator.isCurrentSessionUserExists);
 // Add routers from routes folder
 app.use('/api/users', userRouter);
 app.use('/api/freets', freetRouter);
+app.use('/api/likes', likeRouter);
+app.use('/api/follows', followRouter);
+app.use('/api/refreets', refreetRouter);
+app.use('/api/comments', commentRouter);
+app.use('/api/feeds', feedRouter);
+app.use('/api/search', searchRouter);
+app.use('/api/contestCredibility', contestCredibilityRouter);
+app.use('/api/structuredThreads', structuredThreadRouter);
 
 // Catch all the other routes and display error message
 app.all('*', (req: Request, res: Response) => {

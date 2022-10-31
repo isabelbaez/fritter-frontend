@@ -13,44 +13,37 @@
         v-if="$store.state.username === freet.author"
         class="actions"
       >
-        <button
-          v-if="editing"
-          @click="submitEdit"
-        >
-          ✅ Save changes
-        </button>
-        <button
-          v-if="editing"
-          @click="stopEditing"
-        >
-          🚫 Discard changes
-        </button>
-        <button
-          v-if="!editing"
-          @click="startEditing"
-        >
-          ✏️ Edit
-        </button>
         <button @click="deleteFreet">
           🗑️ Delete
         </button>
       </div>
+      <button @click="likeFreet">
+          ❤️ Like
+      </button>
+      <button @click="unlikeFreet">
+          💔 Unlike
+      </button>
     </header>
-    <textarea
-      v-if="editing"
-      class="content"
-      :value="draft"
-      @input="draft = $event.target.value"
-    />
     <p
-      v-else
       class="content"
     >
       {{ freet.content }}
     </p>
     <p class="info">
-      Posted at {{ freet.dateModified }}
-      <i v-if="freet.edited">(edited)</i>
+      Posted at {{ freet.dateCreated}}
+      Likes: {{ freet.likes.length}}
+      <button @click="showLikes" v-if="!showingLikes">
+          Show Likes
+      </button>
+      <button @click="hideLikes" v-if="showingLikes">
+          Hide Likes
+      </button>
+    </p>
+    <p
+      v-if="showingLikes"
+      class="likes"
+    > 
+    {{ freet.likes }}
     </p>
     <section class="alerts">
       <article
@@ -76,26 +69,12 @@ export default {
   },
   data() {
     return {
-      editing: false, // Whether or not this freet is in edit mode
+      showingLikes: false, // Whether or not this freet is in edit mode
       draft: this.freet.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
   methods: {
-    startEditing() {
-      /**
-       * Enables edit mode on this freet.
-       */
-      this.editing = true; // Keeps track of if a freet is being edited
-      this.draft = this.freet.content; // The content of our current "draft" while being edited
-    },
-    stopEditing() {
-      /**
-       * Disables edit mode on this freet.
-       */
-      this.editing = false;
-      this.draft = this.freet.content;
-    },
     deleteFreet() {
       /**
        * Deletes this freet.
@@ -110,27 +89,51 @@ export default {
       };
       this.request(params);
     },
-    submitEdit() {
+    showLikes() {
       /**
        * Updates freet to have the submitted draft content.
        */
-      if (this.freet.content === this.draft) {
-        const error = 'Error: Edited freet content should be different than current freet content.';
-        this.$set(this.alerts, error, 'error'); // Set an alert to be the error text, timeout of 3000 ms
-        setTimeout(() => this.$delete(this.alerts, error), 3000);
-        return;
-      }
+      this.showingLikes = true;
+    },
+    hideLikes() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      this.showingLikes = false;
+    },
+    likeFreet() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
 
+      console.log(this.freet.likes);
       const params = {
-        method: 'PATCH',
-        message: 'Successfully edited freet!',
-        body: JSON.stringify({content: this.draft}),
+        method: 'POST',
+        message: 'Successfully liked freet!',
+        body: JSON.stringify({parentId: this.freet._id}),
         callback: () => {
           this.$set(this.alerts, params.message, 'success');
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
         }
       };
-      this.request(params);
+      console.log("here");
+      this.likeRequest(params);
+    },
+    unlikeFreet() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      const params = {
+        method: 'DELETE',
+        message: 'Successfully unliked freet!',
+        body: JSON.stringify({parentId: this.freet._id}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      console.log("here");
+      this.likeRequest(params);
     },
     async request(params) {
       /**
@@ -160,6 +163,55 @@ export default {
       } catch (e) {
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
+      }
+    },
+    async likeRequest(params) {
+      /**
+       * Submits a request to the freet's endpoint
+       * @param params - Options for the request
+       * @param params.body - Body for the request, if it exists
+       * @param params.callback - Function to run if the the request succeeds
+       */
+
+      console.log(params.method);
+      if (params.method === "DELETE") {
+
+        const options = {
+          method: params.method
+        };
+
+        try {
+          const r = await fetch(`/api/likes/${this.freet._id}`, options);
+          if (!r.ok) {
+            const res = await r.json();
+            throw new Error(res.error);
+          }
+          this.$store.commit('refreshFreets');
+
+          params.callback();
+        } catch (e) {
+          this.$set(this.alerts, e, 'error');
+          setTimeout(() => this.$delete(this.alerts, e), 3000);
+        }
+      } else {
+        const options = {
+          method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
+        };
+
+        try {
+
+        const r = await fetch(`/api/likes`, options);
+        if (!r.ok) {
+          const res = await r.json();
+          throw new Error(res.error);
+          }
+          this.$store.commit('refreshFreets');
+
+          params.callback();
+        } catch (e) {
+          this.$set(this.alerts, e, 'error');
+          setTimeout(() => this.$delete(this.alerts, e), 3000);
+        }
       }
     }
   }

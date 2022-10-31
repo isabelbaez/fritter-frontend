@@ -2,28 +2,26 @@ import type {Types} from 'mongoose';
 import {Schema, model} from 'mongoose';
 
 /**
- * This file defines the properties stored in a Freet
+ * This file defines the properties stored in a Comment
  * DO NOT implement operations here ---> use collection file
  */
 
-// Type definition for Freet on the backend
-export type Freet = {
+// Type definition for Comment on the backend
+export type Comment = {
   _id: Types.ObjectId; // MongoDB assigns each object this ID on creation
   authorId: Types.ObjectId;
+  parentId: Types.ObjectId;
   dateCreated: Date;
   content: string;
-  credibilityScoreId: Types.ObjectId;
   likes: Array<string>; // Add a new field called "views" with the number type to the interface
-  refreets: Array<string>;
-  comments: Array<string>;
-  threadId: Types.ObjectId | "Disabled";
+  comments: Array<string>; 
 };
 
 // Mongoose schema definition for interfacing with a MongoDB table
-// Freets stored in this table will have these fields, with the
+// Comments stored in this table will have these fields, with the
 // type given by the type property, inside MongoDB
 
-const FreetSchema = new Schema<Freet>({
+const CommentSchema = new Schema<Comment>({
   // The author userId
   authorId: {
     // Use Types.ObjectId outside of the schema
@@ -31,40 +29,33 @@ const FreetSchema = new Schema<Freet>({
     required: true,
     ref: 'User'
   },
-  // The date the freet was created
+  parentId: {
+    // Use Types.ObjectId outside of the schema
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'Freet'
+  },
+  // The date the comment was created
   dateCreated: {
     type: Date,
     required: true
   },
-  // The content of the freet
+  // The content of the comment
   content: {
     type: String,
     required: true
   },
-  credibilityScoreId: {
-    type: Schema.Types.ObjectId,
-    required: false
-  },
-  // Add views field to the schema
+  // Add likes field to the schema
   likes: {
     type: [String],
     default: new Array<string>()
   },
-  // Add views field to the schema
-  refreets: {
-    type: [String],
-    default: new Array<string>()
-  },
+  // Add comments field to the schema
   comments: {
     type: [String],
     default: new Array<string>()
   },
-  threadId: {
-    // Use Types.ObjectId outside of the schema
-    type: Schema.Types.Mixed,
-    default: "Disabled"
-  },
 });
 
-const FreetModel = model<Freet>('Freet', FreetSchema);
-export default FreetModel;
+const CommentModel = model<Comment>('Comment', CommentSchema);
+export default CommentModel;

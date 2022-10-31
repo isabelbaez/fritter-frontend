@@ -1,8 +1,8 @@
 import type {NextFunction, Request, Response} from 'express';
 import express from 'express';
-import FreetCollection from './collection';
+import StructuredThreadCollection from './collection';
 import * as userValidator from '../user/middleware';
-import * as freetValidator from '../freet/middleware';
+import * as threadValidator from './middleware';
 import * as util from './util';
 
 const router = express.Router();
@@ -18,11 +18,11 @@ const router = express.Router();
 /**
  * Get freets by author.
  *
- * @name GET /api/freets?author=username
+ * @name GET /api/freets?authorId=id
  *
- * @return {FreetResponse[]} - An array of freets created by user with username, author
- * @throws {400} - If author is not given
- * @throws {404} - If no user has given author
+ * @return {FreetResponse[]} - An array of freets created by user with id, authorId
+ * @throws {400} - If authorId is not given
+ * @throws {404} - If no user has given authorId
  *
  */
 router.get(
@@ -34,18 +34,17 @@ router.get(
       return;
     }
 
-    const allFreets = await FreetCollection.findAll();
-    const response = allFreets.map(util.constructFreetResponse);
-
-    res.status(200).json(await Promise.all(response));
+    const allThreads = await StructuredThreadCollection.findAll();
+    const response = allThreads.map(util.constructThreadResponse);
+    res.status(200).json(response);
   },
   [
     userValidator.isAuthorExists
   ],
   async (req: Request, res: Response) => {
-    const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
-    const response = authorFreets.map(util.constructFreetResponse);
-    res.status(200).json(await Promise.all(response));
+    const authorFreets = await StructuredThreadCollection.findAllByUsername(req.query.author as string);
+    const response = authorFreets.map(util.constructThreadResponse);
+    res.status(200).json(response);
   }
 );
 
@@ -64,23 +63,19 @@ router.post(
   '/',
   [
     userValidator.isUserLoggedIn,
-    freetValidator.isValidFreetContent,
+    threadValidator.isValidThreadFreetsContent,
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    let freet;
+    let thread;
 
-    if (req.body.sources) {
-      const sourcesString = (req.body.sources as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-      const sources = sourcesString.split(',');
-      freet = await FreetCollection.addOne(userId, req.body.content, sources);
-    } else {
-      freet = await FreetCollection.addOne(userId, req.body.content);
-    }
+    const content = [req.body.content1, req.body.content2, req.body.content3];
 
+    thread = await StructuredThreadCollection.addOne(userId, content);
+    
     res.status(201).json({
       message: 'Your freet was created successfully.',
-      freet: await util.constructFreetResponse(freet)
+      freet: util.constructThreadResponse(thread)
     });
   }
 );
@@ -96,18 +91,17 @@ router.post(
  * @throws {404} - If the freetId is not valid
  */
 router.delete(
-  '/:freetId?',
+  '/:threadId?',
   [
     userValidator.isUserLoggedIn,
-    freetValidator.isFreetExists,
-    freetValidator.isValidFreetModifier
+    threadValidator.isThreadExists,
   ],
   async (req: Request, res: Response) => {
-    await FreetCollection.deleteOne(req.params.freetId);
+    await StructuredThreadCollection.deleteOne(req.params.threadId);
     res.status(200).json({
-      message: 'Your freet was deleted successfully.'
+      message: 'Your thread was deleted successfully.'
     });
   }
 );
 
-export {router as freetRouter};
+export {router as structuredThreadRouter};
