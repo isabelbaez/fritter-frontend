@@ -3,6 +3,7 @@ import moment from 'moment';
 import type {Freet} from '../freet/model';
 import UserCollection from '../user/collection';
 import LikeCollection from '../like/collection';
+import RefreetCollection from '../refreet/collection';
 
 // Update this if you add a property to the Freet type!
 type FreetResponse = {
@@ -57,13 +58,23 @@ const constructFreetResponse = async (freet: HydratedDocument<Freet>): Promise<F
     likes.push(user.username);
   }
 
+  const refreets: Array<string> =[];
+
+  for (const refreetId of freetCopy.refreets) {
+
+    const refreet = await RefreetCollection.findOne(refreetId);
+    
+    const user = await UserCollection.findOneByUserId(refreet.userId);
+    refreets.push(user.username);
+  }
+
   return {
     ...freetCopy,
     _id: freetCopy._id.toString(),
     author: author.username.toString(),
     dateCreated: formatDate(freet.dateCreated),
     likes: likes,
-    refreets: freetCopy.refreets,
+    refreets: refreets,
     credibilityScoreId: credScore
   };
 };

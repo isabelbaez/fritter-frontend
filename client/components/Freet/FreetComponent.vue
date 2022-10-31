@@ -23,6 +23,12 @@
       <button @click="unlikeFreet">
           💔 Unlike
       </button>
+      <button @click="refreetFreet">
+          🔁 Refreet
+      </button>
+      <button @click="unrefreetFreet">
+          ✖️ Remove Refreet
+      </button>
     </header>
     <p
       class="content"
@@ -38,12 +44,26 @@
       <button @click="hideLikes" v-if="showingLikes">
           Hide Likes
       </button>
+
+      Refreets: {{ freet.refreets.length}}
+      <button @click="showRefreets" v-if="!showingRefreets">
+          Show Refreets
+      </button>
+      <button @click="hideRefreets" v-if="showingRefreets">
+          Hide Refreets
+      </button>
     </p>
     <p
       v-if="showingLikes"
       class="likes"
     > 
     {{ freet.likes }}
+    </p>
+    <p
+      v-if="showingRefreets"
+      class="refreets"
+    > 
+    {{ freet.refreets }}
     </p>
     <section class="alerts">
       <article
@@ -69,7 +89,8 @@ export default {
   },
   data() {
     return {
-      showingLikes: false, // Whether or not this freet is in edit mode
+      showingLikes: false, // Whether or not currently showing the freet's likes
+      showingRefreets: false, // Whether or not currently showing the freet's refreets
       draft: this.freet.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
     };
@@ -101,12 +122,23 @@ export default {
        */
       this.showingLikes = false;
     },
+    showRefreets() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      this.showingRefreets = true;
+    },
+    hideRefreets() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      this.showingRefreets = false;
+    },
     likeFreet() {
       /**
        * Updates freet to have the submitted draft content.
        */
 
-      console.log(this.freet.likes);
       const params = {
         method: 'POST',
         message: 'Successfully liked freet!',
@@ -116,7 +148,6 @@ export default {
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
         }
       };
-      console.log("here");
       this.likeRequest(params);
     },
     unlikeFreet() {
@@ -132,8 +163,38 @@ export default {
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
         }
       };
-      console.log("here");
       this.likeRequest(params);
+    },
+    refreetFreet() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+
+      const params = {
+        method: 'POST',
+        message: 'Successfully refreeted freet!',
+        body: JSON.stringify({parentId: this.freet._id}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.refreetRequest(params);
+    },
+    unrefreetFreet() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      const params = {
+        method: 'DELETE',
+        message: 'Successfully removed refreet from freet!',
+        body: JSON.stringify({parentId: this.freet._id}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.refreetRequest(params);
     },
     async request(params) {
       /**
@@ -201,6 +262,55 @@ export default {
         try {
 
         const r = await fetch(`/api/likes`, options);
+        if (!r.ok) {
+          const res = await r.json();
+          throw new Error(res.error);
+          }
+          this.$store.commit('refreshFreets');
+
+          params.callback();
+        } catch (e) {
+          this.$set(this.alerts, e, 'error');
+          setTimeout(() => this.$delete(this.alerts, e), 3000);
+        }
+      }
+    },
+    async refreetRequest(params) {
+      /**
+       * Submits a request to the freet's endpoint
+       * @param params - Options for the request
+       * @param params.body - Body for the request, if it exists
+       * @param params.callback - Function to run if the the request succeeds
+       */
+
+      console.log(params.method);
+      if (params.method === "DELETE") {
+
+        const options = {
+          method: params.method
+        };
+
+        try {
+          const r = await fetch(`/api/refreets/${this.freet._id}`, options);
+          if (!r.ok) {
+            const res = await r.json();
+            throw new Error(res.error);
+          }
+          this.$store.commit('refreshFreets');
+
+          params.callback();
+        } catch (e) {
+          this.$set(this.alerts, e, 'error');
+          setTimeout(() => this.$delete(this.alerts, e), 3000);
+        }
+      } else {
+        const options = {
+          method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
+        };
+
+        try {
+
+        const r = await fetch(`/api/refreets`, options);
         if (!r.ok) {
           const res = await r.json();
           throw new Error(res.error);
