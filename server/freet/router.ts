@@ -4,6 +4,9 @@ import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
 import * as util from './util';
+import LikeCollection from '../like/collection';
+import { Freet } from './model';
+import RefreetCollection from '../refreet/collection';
 
 const router = express.Router();
 
@@ -42,11 +45,57 @@ router.get(
   [
     userValidator.isAuthorExists
   ],
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    if (req.query.likes !== undefined || req.query.refreets !== undefined) {
+      next();
+      return;
+    }
+
     const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
     const response = authorFreets.map(util.constructFreetResponse);
     res.status(200).json(await Promise.all(response));
-  }
+  },
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    if (req.query.refreets !== undefined) {
+      next();
+      return;
+    }
+
+    const authorLikes = await LikeCollection.findAllByUsername(req.query.author as string);
+    const allFreets = await FreetCollection.findAll();
+
+    const likedFreets: Array<Freet> = [];
+
+    for (const freet of allFreets) {
+      for (const likeId of authorLikes) {
+        if (freet.likes.includes(likeId._id.toString())) {
+          likedFreets.push(freet);
+        }
+      }
+    }
+
+    const response = likedFreets.map(util.constructFreetResponse);
+    res.status(200).json(await Promise.all(response));
+  },
+  async (req: Request, res: Response) => {
+
+    const authorRefreets = await RefreetCollection.findAllByUsername(req.query.author as string);
+    const allFreets = await FreetCollection.findAll();
+
+    const refreetFreets: Array<Freet> = [];
+
+    for (const freet of allFreets) {
+      for (const refreetId of authorRefreets) {
+        if (freet.refreets.includes(refreetId._id.toString())) {
+          refreetFreets.push(freet);
+        }
+      }
+    }
+    const response = refreetFreets.map(util.constructFreetResponse);
+    res.status(200).json(await Promise.all(response));
+  },
 );
 
 /**

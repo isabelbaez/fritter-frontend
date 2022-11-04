@@ -36,7 +36,7 @@ router.get(
 
     const allComments = await CommentCollection.findAll();
     const response = allComments.map(util.constructCommentResponse);
-    res.status(200).json(response);
+    res.status(200).json(await Promise.all(response));
   },
   [
     userValidator.isAuthorExists
@@ -44,7 +44,7 @@ router.get(
   async (req: Request, res: Response) => {
     const authorComments = await CommentCollection.findAllByUsername(req.query.author as string);
     const response = authorComments.map(util.constructCommentResponse);
-    res.status(200).json(response);
+    res.status(200).json(await Promise.all(response));
   }
 );
 
@@ -72,7 +72,7 @@ router.post(
 
     res.status(201).json({
       message: 'Your comment was created successfully.',
-      comment: util.constructCommentResponse(comment)
+      comment: await util.constructCommentResponse(comment)
     });
   }
 );

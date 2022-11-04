@@ -3,31 +3,25 @@
 
 <template>
   <article
-    class="freet"
+    class="comment"
   >
     <header>
       <h3 class="author">
-        @{{ freet.author }}
+        @{{ comment.author }}
       </h3>
       <div
-        v-if="$store.state.username === freet.author"
+        v-if="$store.state.username === comment.author"
         class="actions"
       >
-        <button @click="deleteFreet">
+        <button @click="deleteComment">
           🗑️ Delete
         </button>
       </div>
-      <button @click="likeFreet">
+      <button @click="likeComment">
           ❤️ Like
       </button>
-      <button @click="unlikeFreet">
+      <button @click="unlikeComment">
           💔 Unlike
-      </button>
-      <button @click="refreetFreet">
-          🔁 Refreet
-      </button>
-      <button @click="unrefreetFreet">
-          ✖️ Remove Refreet
       </button>
       <button @click="showCreateComment">
           💬 Comment
@@ -36,37 +30,23 @@
     <p
       class="content"
     >
-      {{ freet.content }}
+      {{ comment.content }}
     </p>
     <p class="info">
-      Posted at {{ freet.dateCreated}}
-      Likes: {{ freet.likes.length}}
+      Posted at {{ comment.dateCreated}}
+      Likes: {{ comment.likes.length}}
       <button @click="showLikes" v-if="!showingLikes">
           Show Likes
       </button>
       <button @click="hideLikes" v-if="showingLikes">
           Hide Likes
       </button>
-
-      Refreets: {{ freet.refreets.length}}
-      <button @click="showRefreets" v-if="!showingRefreets">
-          Show Refreets
-      </button>
-      <button @click="hideRefreets" v-if="showingRefreets">
-          Hide Refreets
-      </button>
     </p>
     <p
       v-if="showingLikes"
       class="likes"
     > 
-    {{ freet.likes }}
-    </p>
-    <p
-      v-if="showingRefreets"
-      class="refreets"
-    > 
-    {{ freet.refreets }}
+    {{ comment.likes }}
     </p>
     <section class="alerts">
       <article
@@ -84,29 +64,15 @@
         Post
       </button>
     </section>
-
-    <section
-        v-if="freet.comments.length"
-      >
-        <CommentComponent
-          v-for="comment in freet.comments"
-          :key="comment.id"
-          :comment="comment"
-        />
-    </section>
-
   </article>
 </template>
 
 <script>
-import CommentComponent from '@/components/Comment/CommentComponent.vue';
-
 export default {
-  name: 'FreetComponent',
-  components: {CommentComponent},
+  name: 'CommentComponent',
   props: {
     // Data from the stored freet
-    freet: {
+    comment: {
       type: Object,
       required: true
     }
@@ -114,22 +80,21 @@ export default {
   data() {
     return {
       showingLikes: false, // Whether or not currently showing the freet's likes
-      showingRefreets: false, // Whether or not currently showing the freet's refreets
       creatingComment: false,
-      draft: this.freet.content, // Potentially-new content for this freet
+      draft: this.comment.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
   methods: {
-    deleteFreet() {
+    deleteComment() {
       /**
-       * Deletes this freet.
+       * Deletes this comment.
        */
       const params = {
         method: 'DELETE',
         callback: () => {
           this.$store.commit('alert', {
-            message: 'Successfully deleted freet!', status: 'success'
+            message: 'Successfully deleted comment!', status: 'success'
           });
         }
       };
@@ -153,18 +118,6 @@ export default {
        */
       this.showingLikes = false;
     },
-    showRefreets() {
-      /**
-       * Updates freet to have the submitted draft content.
-       */
-      this.showingRefreets = true;
-    },
-    hideRefreets() {
-      /**
-       * Updates freet to have the submitted draft content.
-       */
-      this.showingRefreets = false;
-    },
     postComment() {
       /**
        * Updates freet to have the submitted draft content.
@@ -175,7 +128,7 @@ export default {
       const params = {
         method: 'POST',
         message: 'Successfully posted comment!',
-        body: JSON.stringify({parentId: this.freet._id, content: this.content}),
+        body: JSON.stringify({parentId: this.comment._id, content: this.content}),
         callback: () => {
           this.$set(this.alerts, params.message, 'success');
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
@@ -183,15 +136,15 @@ export default {
       };
       this.commentRequest(params);
     },
-    likeFreet() {
+    likeComment() {
       /**
        * Updates freet to have the submitted draft content.
        */
 
       const params = {
         method: 'POST',
-        message: 'Successfully liked freet!',
-        body: JSON.stringify({parentId: this.freet._id}),
+        message: 'Successfully liked comment!',
+        body: JSON.stringify({parentId: this.comment._id}),
         callback: () => {
           this.$set(this.alerts, params.message, 'success');
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
@@ -199,51 +152,20 @@ export default {
       };
       this.likeRequest(params);
     },
-    unlikeFreet() {
+    unlikeComment() {
       /**
        * Updates freet to have the submitted draft content.
        */
       const params = {
         method: 'DELETE',
-        message: 'Successfully unliked freet!',
-        body: JSON.stringify({parentId: this.freet._id}),
+        message: 'Successfully unliked comment!',
+        body: JSON.stringify({parentId: this.comment._id}),
         callback: () => {
           this.$set(this.alerts, params.message, 'success');
           setTimeout(() => this.$delete(this.alerts, params.message), 3000);
         }
       };
       this.likeRequest(params);
-    },
-    refreetFreet() {
-      /**
-       * Updates freet to have the submitted draft content.
-       */
-
-      const params = {
-        method: 'POST',
-        message: 'Successfully refreeted freet!',
-        body: JSON.stringify({parentId: this.freet._id}),
-        callback: () => {
-          this.$set(this.alerts, params.message, 'success');
-          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
-        }
-      };
-      this.refreetRequest(params);
-    },
-    unrefreetFreet() {
-      /**
-       * Updates freet to have the submitted draft content.
-       */
-      const params = {
-        method: 'DELETE',
-        message: 'Successfully removed refreet from freet!',
-        body: JSON.stringify({parentId: this.freet._id}),
-        callback: () => {
-          this.$set(this.alerts, params.message, 'success');
-          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
-        }
-      };
-      this.refreetRequest(params);
     },
     async request(params) {
       /**
@@ -260,7 +182,7 @@ export default {
       }
 
       try {
-        const r = await fetch(`/api/freets/${this.freet._id}`, options);
+        const r = await fetch(`/api/comments/${this.comment._id}`, options);
         if (!r.ok) {
           const res = await r.json();
           throw new Error(res.error);
@@ -291,13 +213,12 @@ export default {
         };
 
         try {
-          const r = await fetch(`/api/likes/${this.freet._id}`, options);
+          const r = await fetch(`/api/likes/${this.comment._id}`, options);
           if (!r.ok) {
             const res = await r.json();
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshLikes');
 
           console.log(this.$store.state.likes);
 
@@ -319,60 +240,8 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshLikes');
 
           console.log(this.$store.state.likes);
-
-          params.callback();
-        } catch (e) {
-          this.$set(this.alerts, e, 'error');
-          setTimeout(() => this.$delete(this.alerts, e), 3000);
-        }
-      }
-    },
-    async refreetRequest(params) {
-      /**
-       * Submits a request to the freet's endpoint
-       * @param params - Options for the request
-       * @param params.body - Body for the request, if it exists
-       * @param params.callback - Function to run if the the request succeeds
-       */
-
-      console.log(params.method);
-      if (params.method === "DELETE") {
-
-        const options = {
-          method: params.method
-        };
-
-        try {
-          const r = await fetch(`/api/refreets/${this.freet._id}`, options);
-          if (!r.ok) {
-            const res = await r.json();
-            throw new Error(res.error);
-          }
-          this.$store.commit('refreshFreets');
-          this.$store.commit('refreshRefreets');
-
-          params.callback();
-        } catch (e) {
-          this.$set(this.alerts, e, 'error');
-          setTimeout(() => this.$delete(this.alerts, e), 3000);
-        }
-      } else {
-        const options = {
-          method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
-        };
-
-        try {
-
-        const r = await fetch(`/api/refreets`, options);
-        if (!r.ok) {
-          const res = await r.json();
-          throw new Error(res.error);
-          }
-          this.$store.commit('refreshFreets');
-          this.$store.commit('refreshRefreets');
 
           params.callback();
         } catch (e) {
@@ -397,13 +266,12 @@ export default {
         };
 
         try {
-          const r = await fetch(`/api/likes/${this.freet._id}`, options);
+          const r = await fetch(`/api/likes/${this.comment._id}`, options);
           if (!r.ok) {
             const res = await r.json();
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshLikes');
 
           console.log(this.$store.state.likes);
 
@@ -440,7 +308,7 @@ export default {
 </script>
 
 <style scoped>
-.freet {
+.comment {
     border: 1px solid #111;
     padding: 20px;
     position: relative;

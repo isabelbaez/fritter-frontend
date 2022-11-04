@@ -4,8 +4,19 @@ import type {Freet} from '../freet/model';
 import UserCollection from '../user/collection';
 import LikeCollection from '../like/collection';
 import RefreetCollection from '../refreet/collection';
+import CommentCollection from '../comment/collection';
+import * as util from '../comment/util';
 
 // Update this if you add a property to the Freet type!
+type CommentResponse = {
+  _id: string;
+  author: string;
+  dateCreated: string;
+  content: string;
+  likes: Array<string>;
+  comments: Array<CommentResponse>;
+};
+
 type FreetResponse = {
   _id: string;
   author: string;
@@ -13,9 +24,9 @@ type FreetResponse = {
   content: string;
   likes: Array<string>;
   refreets: Array<string>;
+  comments: Array<CommentResponse>
   credibilityScoreId: string;
 };
-
 /**
  * Encode a date as an unambiguous string
  *
@@ -68,6 +79,12 @@ const constructFreetResponse = async (freet: HydratedDocument<Freet>): Promise<F
     refreets.push(user.username);
   }
 
+  const comments: Array<CommentResponse> =[];
+  for (const commentId of freetCopy.comments) {
+    const comment = await CommentCollection.findOne(commentId);
+    comments.push(await util.constructCommentResponse(comment));
+  }
+
   return {
     ...freetCopy,
     _id: freetCopy._id.toString(),
@@ -75,6 +92,7 @@ const constructFreetResponse = async (freet: HydratedDocument<Freet>): Promise<F
     dateCreated: formatDate(freet.dateCreated),
     likes: likes,
     refreets: refreets,
+    comments: comments,
     credibilityScoreId: credScore
   };
 };
