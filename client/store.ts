@@ -13,6 +13,7 @@ const store = new Vuex.Store({
     freets: [], // All freets created in the app
     likes: [],
     refreets: [],
+    comments: [],
     username: null, // Username of the logged in user
     alerts: {} // global success/error messages encountered during submissions to non-visible forms
   },
@@ -47,6 +48,14 @@ const store = new Vuex.Store({
        */
       state.freets = freets;
     },
+    async refreshFreets(state) {
+      /**
+       * Request the server for the currently available freets.
+       */
+      const url = state.filter ? `/api/users/${state.filter}/freets` : '/api/freets';
+      const res = await fetch(url).then(async r => r.json());
+      state.freets = res;
+    },
     updateLikes(state, likes) {
       /**
        * Update the stored likes to the provided likes.
@@ -79,13 +88,20 @@ const store = new Vuex.Store({
       console.log(res);
       state.refreets = res;
     },
-    async refreshFreets(state) {
+    updateComments(state, comments) {
       /**
-       * Request the server for the currently available freets.
+       * Update the stored comments to the provided comments.
+       * @param comments - comments to store
        */
-      const url = state.filter ? `/api/users/${state.filter}/freets` : '/api/freets';
+      state.comments = comments;
+    },
+    async refreshComments(state) {
+      /**
+       * Request the server for the currently available comments.
+       */
+      const url = `/api/freets?author=${state.username}&comments=true`;
       const res = await fetch(url).then(async r => r.json());
-      state.freets = res;
+      state.comments = res;
     }
   },
   // Store data across page refreshes, only discard on browser close

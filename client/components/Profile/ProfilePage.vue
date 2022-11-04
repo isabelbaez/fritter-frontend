@@ -58,6 +58,34 @@ Default page that also displays freets
         <h3>No refreets found.</h3>
       </article>
     </section>
+    <section>
+      <div class="right">
+          <GetCommentsForm
+            ref="getCommentsForm"
+          />
+        </div>
+      <header>
+        <div class="left">
+          <h2>
+            User Comments
+          </h2>
+          </div>
+      </header>
+      <section
+        v-if="$store.state.comments.length"
+      >
+        <FreetComponent
+          v-for="freet in $store.state.comments"
+          :key="freet.id"
+          :freet="freet"
+        />
+      </section>
+      <article
+        v-else
+      >
+        <h3>No comments found.</h3>
+      </article>
+    </section>
   </main>
 </template>
 
@@ -65,13 +93,15 @@ Default page that also displays freets
 import FreetComponent from '@/components/Freet/FreetComponent.vue';
 import GetLikesForm from '@/components/Profile/GetLikesForm.vue';
 import GetRefreetsForm from '@/components/Profile/GetRefreetsForm.vue';
+import GetCommentsForm from '@/components/Profile/GetCommentsForm.vue';
 
 export default {
   name: 'ProfilePage',
-  components: {FreetComponent, GetLikesForm, GetRefreetsForm},
+  components: {FreetComponent, GetLikesForm, GetRefreetsForm, GetCommentsForm},
   mounted() {
     this.$refs.getLikesForm.submit();
     this.$refs.getRefreetsForm.submit();
+    this.$refs.getCommentsForm.submit();
   },
 };
 </script>

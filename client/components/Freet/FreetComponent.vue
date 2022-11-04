@@ -268,6 +268,9 @@ export default {
 
         this.editing = false;
         this.$store.commit('refreshFreets');
+        this.$store.commit('refreshLikes');
+        this.$store.commit('refreshRefreets');
+        this.$store.commit('refreshComments');
 
         params.callback();
       } catch (e) {

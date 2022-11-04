@@ -7,6 +7,7 @@ import * as util from './util';
 import LikeCollection from '../like/collection';
 import { Freet } from './model';
 import RefreetCollection from '../refreet/collection';
+import CommentCollection from '../comment/collection';
 
 const router = express.Router();
 
@@ -47,7 +48,7 @@ router.get(
   ],
   async (req: Request, res: Response, next: NextFunction) => {
 
-    if (req.query.likes !== undefined || req.query.refreets !== undefined) {
+    if (req.query.likes !== undefined || req.query.refreets !== undefined || req.query.comments !== undefined) {
       next();
       return;
     }
@@ -58,7 +59,7 @@ router.get(
   },
   async (req: Request, res: Response, next: NextFunction) => {
 
-    if (req.query.refreets !== undefined) {
+    if (req.query.refreets !== undefined || req.query.comments !== undefined) {
       next();
       return;
     }
@@ -79,7 +80,12 @@ router.get(
     const response = likedFreets.map(util.constructFreetResponse);
     res.status(200).json(await Promise.all(response));
   },
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    if (req.query.comments !== undefined) {
+      next();
+      return;
+    }
 
     const authorRefreets = await RefreetCollection.findAllByUsername(req.query.author as string);
     const allFreets = await FreetCollection.findAll();
@@ -96,6 +102,23 @@ router.get(
     const response = refreetFreets.map(util.constructFreetResponse);
     res.status(200).json(await Promise.all(response));
   },
+  async (req: Request, res: Response) => {
+
+    const authorComments = await CommentCollection.findAllByUsername(req.query.author as string);
+    const allFreets = await FreetCollection.findAll();
+
+    const commentFreets: Array<Freet> = [];
+
+    for (const freet of allFreets) {
+      for (const commentId of authorComments) {
+        if (freet.comments.includes(commentId._id.toString())) {
+          commentFreets.push(freet);
+        }
+      }
+    }
+    const response = commentFreets.map(util.constructFreetResponse);
+    res.status(200).json(await Promise.all(response));
+  }
 );
 
 /**

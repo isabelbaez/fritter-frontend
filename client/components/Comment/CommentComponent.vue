@@ -190,6 +190,7 @@ export default {
 
         this.editing = false;
         this.$store.commit('refreshFreets');
+        this.$store.commit('refreshComments');
 
         params.callback();
       } catch (e) {
@@ -219,6 +220,7 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
+          this.$store.commit('refreshComments');
 
           console.log(this.$store.state.likes);
 
@@ -240,6 +242,7 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
+          this.$store.commit('refreshComments');
 
           console.log(this.$store.state.likes);
 
@@ -272,6 +275,7 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
+          this.$store.commit('refreshComments');
 
           console.log(this.$store.state.likes);
 
@@ -293,6 +297,7 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
+          this.$store.commit('refreshComments');
 
           console.log(this.$store.state.likes);
 
