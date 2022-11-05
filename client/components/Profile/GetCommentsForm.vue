@@ -9,9 +9,9 @@ export default {
   name: 'GetCommentsForm',
   methods: {
 
-    async submit() {
+    async submit(username) {
 
-      const url = `/api/freets?author=${this.$store.state.username}&comments=${true}`;
+      const url = `/api/freets?author=${username}&comments=${true}`;
 
       try {
         const r = await fetch(url);
@@ -22,7 +22,7 @@ export default {
         console.log(res);
         this.$store.commit('updateComments', res);
       } catch (e) {
-        this.$store.commit('refreshComments');
+        this.$store.commit('refreshComments', username);
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
       }

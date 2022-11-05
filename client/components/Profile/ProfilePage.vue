@@ -99,9 +99,9 @@ export default {
   name: 'ProfilePage',
   components: {FreetComponent, GetLikesForm, GetRefreetsForm, GetCommentsForm},
   mounted() {
-    this.$refs.getLikesForm.submit();
-    this.$refs.getRefreetsForm.submit();
-    this.$refs.getCommentsForm.submit();
+    this.$refs.getLikesForm.submit(this.$route.params.username);
+    this.$refs.getRefreetsForm.submit(this.$route.params.username);
+    this.$refs.getCommentsForm.submit(this.$route.params.username);
   },
 };
 </script>

@@ -5,6 +5,7 @@
     <section v-if="$store.state.username">
       <header>
         <h2>Welcome @{{ $store.state.username }}</h2>
+        <SearchBar />
       </header>
       <CreateFreetForm />
     </section>
@@ -62,10 +63,11 @@
 import FreetComponent from '@/components/Freet/FreetComponent.vue';
 import CreateFreetForm from '@/components/Freet/CreateFreetForm.vue';
 import GetFreetsForm from '@/components/Freet/GetFreetsForm.vue';
+import SearchBar from '@/components/Search/SearchBar.vue';
 
 export default {
   name: 'FreetPage',
-  components: {FreetComponent, GetFreetsForm, CreateFreetForm},
+  components: {FreetComponent, GetFreetsForm, CreateFreetForm, SearchBar},
   mounted() {
     this.$refs.getFreetsForm.submit();
   }

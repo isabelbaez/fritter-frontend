@@ -31,7 +31,7 @@ router.get(
   ],
   async (req: Request, res: Response) => {
     const viewerFeed = await SearchCollection.findOneByUser(req.session.userId as string);
-    res.status(200).json(util.constructSearchResponse(viewerFeed));
+    res.status(200).json(await util.constructSearchResponse(viewerFeed));
   }
 );
 
@@ -68,7 +68,7 @@ router.put(
 
     res.status(200).json({
       message: 'Your search was updated successfully.',
-      search: util.constructSearchResponse(result)
+      search: await util.constructSearchResponse(result)
     });
   }
 );

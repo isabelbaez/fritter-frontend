@@ -11,7 +11,7 @@ export default {
   },
   methods: {
     async submit() {
-      const url = this.value ? `/api/freets?author=${this.value}` : '/api/freets';
+      const url = this.$store.state.username ? `/api/freets?feed=true` : '/api/freets';
       try {
         const r = await fetch(url);
         const res = await r.json();

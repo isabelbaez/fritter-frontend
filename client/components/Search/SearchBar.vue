@@ -4,41 +4,25 @@
 
 <template>
   <nav>
-    <div class="left">
-      <img src="../../public/logo.svg">
-      <h1 class="title">
-        Fritter
-      </h1>
-    </div>
     <div class="right">
-      <router-link to="/">
-        Home
-      </router-link>
-      <router-link
-        v-if="$store.state.username"
-        to="/account"
-      >
-        Account
-      </router-link>
-      <router-link
-        v-else
-        to="/login"
-      >
-        Login
-      </router-link>
-      <router-link
-        v-if="$store.state.username"
-        to= "/profile/isabelbaez"
-      >
-        Profile 
-      </router-link>
-      <router-link
-        v-else
-        to="/login"
-      >
-        Login
-      </router-link>
+      <GetUsersForm
+        ref="getUsersForm"
+        value="content"
+        placeholder="🔍 Search for users"
+        button="🔄 Search Users"
+      />
     </div>
+    <section v-if="$store.state.isSearching">
+      <article
+        v-for="user in $store.state.searchUsers.users"
+        :key="user"
+        :class="user">
+        {{user}}
+      </article>
+      <button @click="stopSearch">
+          Close
+      </button>
+    </section>
     <section class="alerts">
       <article
         v-for="(status, alert, index) in $store.state.alerts"
@@ -50,6 +34,26 @@
     </section>
   </nav>
 </template>
+
+<script>
+import GetUsersForm from '@/components/Search/GetUsersForm.vue';
+
+export default {
+  name: 'SearchBar',
+  components: {GetUsersForm}, 
+  methods: {    
+    stopSearch() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      this.$store.commit('stopSearch');
+    }
+  },
+  mounted() {
+    this.$refs.getUsersForm.submit();
+  },
+};
+</script>
 
 <style scoped>
 nav {

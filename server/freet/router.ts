@@ -8,6 +8,7 @@ import LikeCollection from '../like/collection';
 import { Freet } from './model';
 import RefreetCollection from '../refreet/collection';
 import CommentCollection from '../comment/collection';
+import FeedCollection from '../feed/collection';
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     // Check if authorId query parameter was supplied
-    if (req.query.author !== undefined) {
+    if (req.query.author !== undefined || req.query.feed !== undefined) {
       next();
       return;
     }
@@ -41,6 +42,31 @@ router.get(
     const allFreets = await FreetCollection.findAll();
     const response = allFreets.map(util.constructFreetResponse);
 
+    res.status(200).json(await Promise.all(response));
+  },
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    if (req.query.author !== undefined) {
+      next();
+      return;
+    }
+
+    let authorFeed = await FeedCollection.findOneByUser(req.session.userId);
+    const allFreets = await FreetCollection.findAll();
+
+    await FeedCollection.updateFeed(authorFeed._id);
+    authorFeed = await FeedCollection.findOneByUser(req.session.userId);
+
+    const feedFreets: Array<Freet> = [];
+
+    for (const freet of allFreets) {
+      for (const freetId of authorFeed.freets) {
+        if (freet._id.toString() === freetId) {
+          feedFreets.push(freet);
+        }
+      }
+    }
+    const response = feedFreets.map(util.constructFreetResponse);
     res.status(200).json(await Promise.all(response));
   },
   [
@@ -59,7 +85,7 @@ router.get(
   },
   async (req: Request, res: Response, next: NextFunction) => {
 
-    if (req.query.refreets !== undefined || req.query.comments !== undefined) {
+    if (req.query.refreets !== undefined || req.query.comments !== undefined || req.query.feed !== undefined) {
       next();
       return;
     }
@@ -82,7 +108,7 @@ router.get(
   },
   async (req: Request, res: Response, next: NextFunction) => {
 
-    if (req.query.comments !== undefined) {
+    if (req.query.comments !== undefined || req.query.feed !== undefined) {
       next();
       return;
     }
@@ -102,7 +128,12 @@ router.get(
     const response = refreetFreets.map(util.constructFreetResponse);
     res.status(200).json(await Promise.all(response));
   },
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    if (req.query.feed !== undefined) {
+      next();
+      return;
+    }
 
     const authorComments = await CommentCollection.findAllByUsername(req.query.author as string);
     const allFreets = await FreetCollection.findAll();

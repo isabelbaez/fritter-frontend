@@ -9,8 +9,8 @@ export default {
   name: 'GetRefreetsForm',
   methods: {
 
-    async submit() {
-      const url = `/api/freets?author=${this.$store.state.username}&refreets=${true}`;
+    async submit(username) {
+      const url = `/api/freets?author=${username}&refreets=${true}`;
 
       try {
         const r = await fetch(url);
@@ -20,7 +20,7 @@ export default {
         }
         this.$store.commit('updateRefreets', res);
       } catch (e) {
-        this.$store.commit('refreshRefreets');
+        this.$store.commit('refreshRefreets', username);
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
       }

@@ -9,9 +9,9 @@ export default {
   name: 'GetLikesForm',
   methods: {
 
-    async submit() {
+    async submit(username) {
 
-      const url = `/api/freets?author=${this.$store.state.username}&likes=${true}`;
+      const url = `/api/freets?author=${username}&likes=${true}`;
       console.log(url);
 
       try {
@@ -23,7 +23,7 @@ export default {
         console.log(res);
         this.$store.commit('updateLikes', res);
       } catch (e) {
-        this.$store.commit('refreshLikes');
+        this.$store.commit('refreshLikes', username);
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
       }

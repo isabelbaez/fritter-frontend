@@ -268,9 +268,9 @@ export default {
 
         this.editing = false;
         this.$store.commit('refreshFreets');
-        this.$store.commit('refreshLikes');
-        this.$store.commit('refreshRefreets');
-        this.$store.commit('refreshComments');
+        this.$store.commit('refreshLikes', this.$store.state.username);
+        this.$store.commit('refreshRefreets', this.$store.state.username);
+        this.$store.commit('refreshComments', this.$store.state.username);
 
         params.callback();
       } catch (e) {
@@ -300,7 +300,9 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshLikes');
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           console.log(this.$store.state.likes);
 
@@ -322,7 +324,9 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshLikes');
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           console.log(this.$store.state.likes);
 
@@ -355,7 +359,9 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshRefreets');
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           params.callback();
         } catch (e) {
@@ -375,7 +381,9 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshRefreets');
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           params.callback();
         } catch (e) {
@@ -392,50 +400,28 @@ export default {
        * @param params.callback - Function to run if the the request succeeds
        */
 
-      console.log(params.method);
-      if (params.method === "DELETE") {
+      const options = {
+        method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
+      };
 
-        const options = {
-          method: params.method
-        };
+      try {
 
-        try {
-          const r = await fetch(`/api/likes/${this.freet._id}`, options);
-          if (!r.ok) {
-            const res = await r.json();
-            throw new Error(res.error);
-          }
-          this.$store.commit('refreshFreets');
-          this.$store.commit('refreshLikes');
-
-          console.log(this.$store.state.likes);
-
-          params.callback();
-        } catch (e) {
-          this.$set(this.alerts, e, 'error');
-          setTimeout(() => this.$delete(this.alerts, e), 3000);
+      const r = await fetch(`/api/comments`, options);
+      if (!r.ok) {
+        const res = await r.json();
+        throw new Error(res.error);
         }
-      } else {
-        const options = {
-          method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
-        };
+        this.$store.commit('refreshFreets');
+        this.$store.commit('refreshLikes', this.$store.state.username);
+        this.$store.commit('refreshRefreets', this.$store.state.username);
+        this.$store.commit('refreshComments', this.$store.state.username);
 
-        try {
+        console.log(this.$store.state.likes);
 
-        const r = await fetch(`/api/comments`, options);
-        if (!r.ok) {
-          const res = await r.json();
-          throw new Error(res.error);
-          }
-          this.$store.commit('refreshFreets');
-
-          console.log(this.$store.state.likes);
-
-          params.callback();
-        } catch (e) {
-          this.$set(this.alerts, e, 'error');
-          setTimeout(() => this.$delete(this.alerts, e), 3000);
-        }
+        params.callback();
+      } catch (e) {
+        this.$set(this.alerts, e, 'error');
+        setTimeout(() => this.$delete(this.alerts, e), 3000);
       }
     },
   }

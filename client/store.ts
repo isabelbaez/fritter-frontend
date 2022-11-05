@@ -11,6 +11,8 @@ const store = new Vuex.Store({
   state: {
     filter: null, // Username to filter shown freets by (null = show all)
     freets: [], // All freets created in the app
+    searchUsers: null,
+    isSearching: false,
     likes: [],
     refreets: [],
     comments: [],
@@ -41,6 +43,20 @@ const store = new Vuex.Store({
        */
       state.filter = filter;
     },
+    search(state) {
+      /**
+       * Update the stored freets filter to the specified one.
+       * @param filter - Username of the user to fitler freets by
+       */
+      state.isSearching = true;
+    },
+    stopSearch(state) {
+      /**
+       * Update the stored freets filter to the specified one.
+       * @param filter - Username of the user to fitler freets by
+       */
+      state.isSearching = false;
+    },
     updateFreets(state, freets) {
       /**
        * Update the stored freets to the provided freets.
@@ -52,9 +68,24 @@ const store = new Vuex.Store({
       /**
        * Request the server for the currently available freets.
        */
-      const url = state.filter ? `/api/users/${state.filter}/freets` : '/api/freets';
+      const url = state.username ? `/api/freets?feed=true` : '/api/freets';
       const res = await fetch(url).then(async r => r.json());
       state.freets = res;
+    },
+    updateSearch(state, search) {
+      /**
+       * Update the stored freets to the provided freets.
+       * @param users - Freets to store
+       */
+      state.searchUsers = search;
+    },
+    async refreshSearch(state) {
+      /**
+       * Request the server for the currently available freets.
+       */
+      // const url = state.username ? `/api/freets?feed=true` : '/api/freets';
+      // const res = await fetch(url).then(async r => r.json());
+      // state.freets = res;
     },
     updateLikes(state, likes) {
       /**
@@ -63,11 +94,11 @@ const store = new Vuex.Store({
        */
       state.likes = likes;
     },
-    async refreshLikes(state) {
+    async refreshLikes(state, username) {
       /**
        * Request the server for the currently available freets.
        */
-      const url = `/api/freets?author=${state.username}&likes=true`;
+      const url = `/api/freets?author=${username}&likes=true`;
       const res = await fetch(url).then(async r => r.json());
       console.log(res);
       state.likes = res;
@@ -79,11 +110,11 @@ const store = new Vuex.Store({
        */
       state.refreets = refreets;
     },
-    async refreshRefreets(state) {
+    async refreshRefreets(state, username) {
       /**
        * Request the server for the currently available freets.
        */
-      const url = `/api/freets?author=${state.username}&refreets=true`;
+      const url = `/api/freets?author=${username}&refreets=true`;
       const res = await fetch(url).then(async r => r.json());
       console.log(res);
       state.refreets = res;
@@ -95,11 +126,11 @@ const store = new Vuex.Store({
        */
       state.comments = comments;
     },
-    async refreshComments(state) {
+    async refreshComments(state, username) {
       /**
        * Request the server for the currently available comments.
        */
-      const url = `/api/freets?author=${state.username}&comments=true`;
+      const url = `/api/freets?author=${username}&comments=true`;
       const res = await fetch(url).then(async r => r.json());
       state.comments = res;
     }

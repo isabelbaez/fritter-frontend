@@ -64,6 +64,17 @@
         Post
       </button>
     </section>
+
+    <section
+        v-if="comment.comments.length"
+      >
+        <CommentComponent
+          v-for="comment in comment.comments"
+          :key="comment.id"
+          :comment="comment"
+        />
+    </section>
+
   </article>
 </template>
 
@@ -190,7 +201,10 @@ export default {
 
         this.editing = false;
         this.$store.commit('refreshFreets');
-        this.$store.commit('refreshComments');
+        this.$store.commit('refreshComments', this.$store.state.username);
+        this.$store.commit('refreshLikes', this.$store.state.username);
+        this.$store.commit('refreshRefreets', this.$store.state.username);
+        this.$store.commit('refreshComments', this.$store.state.username);
 
         params.callback();
       } catch (e) {
@@ -220,7 +234,10 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments');
+          this.$store.commit('refreshComments', this.$store.state.username);
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           console.log(this.$store.state.likes);
 
@@ -242,7 +259,10 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments');
+          this.$store.commit('refreshComments', this.$store.state.username);
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           console.log(this.$store.state.likes);
 
@@ -275,7 +295,10 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments');
+          this.$store.commit('refreshComments', this.$store.state.username);
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           console.log(this.$store.state.likes);
 
@@ -297,7 +320,10 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments');
+          this.$store.commit('refreshComments', this.$store.state.username);
+          this.$store.commit('refreshLikes', this.$store.state.username);
+          this.$store.commit('refreshRefreets', this.$store.state.username);
+          this.$store.commit('refreshComments', this.$store.state.username);
 
           console.log(this.$store.state.likes);
 
