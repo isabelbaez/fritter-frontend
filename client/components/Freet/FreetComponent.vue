@@ -38,6 +38,9 @@
     >
       {{ freet.content }}
     </p>
+    <p class="credScore" v-if="freet.credibilityScore">
+      Credibility Score: {{freet.credibilityScore}}
+    </p>
     <p class="info">
       Posted at {{ freet.dateCreated}}
       Likes: {{ freet.likes.length}}

@@ -6,8 +6,9 @@
       <header>
         <h2>Welcome @{{ $store.state.username }}</h2>
         <SearchBar />
+
       </header>
-      <CreateFreetForm />
+      <FreetForm />
     </section>
     <section v-else>
       <header>
@@ -33,12 +34,12 @@
           </h2>
         </div>
         <div class="right">
-          <GetFreetsForm
-            ref="getFreetsForm"
-            value="author"
-            placeholder="🔍 Filter by author (optional)"
-            button="🔄 Get freets"
-          />
+          <GetFeedForm
+            ref="getFeedForm"/>
+            <button v-if="credFilterEnabled" @click="disableCredFilter"> Disable Credibility Filter</button>
+            <button v-else @click="enableCredFilter"> Enable Credibility Filter</button>
+
+        <CredFilterForm v-if="credFilterEnabled"/>
         </div>
       </header>
       <section
@@ -61,15 +62,53 @@
 
 <script>
 import FreetComponent from '@/components/Freet/FreetComponent.vue';
-import CreateFreetForm from '@/components/Freet/CreateFreetForm.vue';
-import GetFreetsForm from '@/components/Freet/GetFreetsForm.vue';
+import FreetForm from '@/components/Freet/FreetForm.vue';
+import GetFeedForm from '@/components/Feed/GetFeedForm.vue';
 import SearchBar from '@/components/Search/SearchBar.vue';
+import CredFilterForm from '@/components/Feed/CredFilterForm.vue';
 
 export default {
   name: 'FreetPage',
-  components: {FreetComponent, GetFreetsForm, CreateFreetForm, SearchBar},
+  components: {FreetComponent, GetFeedForm, FreetForm, SearchBar, CredFilterForm},
   mounted() {
-    this.$refs.getFreetsForm.submit();
+    this.$refs.getFeedForm.submit();
+  },
+  data() {
+    return {
+      credFilterEnabled: false,
+    }
+  },
+  methods: {
+    async enableCredFilter() {
+      this.credFilterEnabled = true;
+    },
+    async disableCredFilter() {
+      this.credFilterEnabled = false;
+
+      const options = {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({unscored: true, highScored: true, lowScored: true})
+      };
+      try {
+        console.log(options);
+        const r = await fetch('/api/feeds/', options);
+        if (!r.ok) {
+          // If response is not okay, we throw an error and enter the catch block
+          const res = await r.json();
+          throw new Error(res.error);
+        }
+
+        this.$store.commit('refreshFreets');
+        // const message = 'Successfully created a freet!';
+        // this.alerts.push(message, 'success')
+        // setTimeout(() => this.$delete(this.alerts, message), 3000);
+
+      } catch (e) {
+        // this.alerts.push(e, 'error')
+        // setTimeout(() => this.$delete(this.alerts, e), 3000);
+      }
+    },
   }
 };
 </script>

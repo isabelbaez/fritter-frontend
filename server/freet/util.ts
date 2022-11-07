@@ -6,6 +6,7 @@ import LikeCollection from '../like/collection';
 import RefreetCollection from '../refreet/collection';
 import CommentCollection from '../comment/collection';
 import * as util from '../comment/util';
+import FreetCredibilityScoreCollection from '../freetCredibilityScore/collection';
 
 // Update this if you add a property to the Freet type!
 type CommentResponse = {
@@ -25,7 +26,7 @@ type FreetResponse = {
   likes: Array<string>;
   refreets: Array<string>;
   comments: Array<CommentResponse>
-  credibilityScoreId: string;
+  credibilityScore: undefined | number;
 };
 /**
  * Encode a date as an unambiguous string
@@ -49,12 +50,11 @@ const constructFreetResponse = async (freet: HydratedDocument<Freet>): Promise<F
     })
   };
 
-  let credScore: string;
+  let credScore: undefined | number;
 
-  if (!freetCopy.credibilityScoreId) {
-    credScore = "Disabled";
-  } else {
-    credScore = freetCopy.credibilityScoreId.toString();
+  if (freetCopy.credibilityScoreId) {
+    const score = await FreetCredibilityScoreCollection.findOne(freetCopy.credibilityScoreId);
+    credScore = score.value;
   }
 
   const author = await UserCollection.findOneByUserId(freetCopy.authorId);
@@ -93,7 +93,7 @@ const constructFreetResponse = async (freet: HydratedDocument<Freet>): Promise<F
     likes: likes,
     refreets: refreets,
     comments: comments,
-    credibilityScoreId: credScore
+    credibilityScore: credScore
   };
 };
 
