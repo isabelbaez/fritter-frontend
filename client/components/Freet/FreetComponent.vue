@@ -41,6 +41,25 @@
     <p class="credScore" v-if="freet.credibilityScore">
       Credibility Score: {{freet.credibilityScore}}
     </p>
+
+    <div v-if="freet.author !== $store.state.username && freet.credibilityScore">
+
+    <button v-if="contestingCred" @click="unsetContestingCred">
+        Dismiss Contest
+    </button>
+
+    <button v-else @click="setContestingCred">
+        Contest Score
+    </button>
+
+    <ContestCredForm
+      v-if="contestingCred"
+      :freet="freet"
+      ref="contestCredForm"
+    />
+    </div>
+
+
     <p class="info">
       Posted at {{ freet.dateCreated}}
       Likes: {{ freet.likes.length}}
@@ -103,10 +122,11 @@
 
 <script>
 import CommentComponent from '@/components/Comment/CommentComponent.vue';
+import ContestCredForm from '@/components/Freet/ContestCredForm.vue';
 
 export default {
   name: 'FreetComponent',
-  components: {CommentComponent},
+  components: {CommentComponent, ContestCredForm},
   props: {
     // Data from the stored freet
     freet: {
@@ -119,11 +139,18 @@ export default {
       showingLikes: false, // Whether or not currently showing the freet's likes
       showingRefreets: false, // Whether or not currently showing the freet's refreets
       creatingComment: false,
+      contestingCred: false,
       draft: this.freet.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
   methods: {
+    setContestingCred() {
+      this.contestingCred = true;
+    },
+    unsetContestingCred() {
+      this.contestingCred = false;
+    },
     deleteFreet() {
       /**
        * Deletes this freet.
@@ -185,6 +212,24 @@ export default {
         }
       };
       this.commentRequest(params);
+    },
+    contestCred() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+
+      console.log(this.content );
+
+      const params = {
+        method: 'POST',
+        message: 'Successfully posted comment!',
+        body: JSON.stringify({parentId: this.freet._id, content: this.content}),
+        callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000);
+        }
+      };
+      this.contestRequest(params);
     },
     likeFreet() {
       /**

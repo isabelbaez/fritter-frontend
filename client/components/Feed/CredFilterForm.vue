@@ -59,6 +59,7 @@ export default {
         }
 
         this.$store.commit('refreshFreets');
+
         const message = 'Successfully created a freet!';
         //this.alerts.push(message, 'success')
         this.$set(this.alerts, message, 'success');

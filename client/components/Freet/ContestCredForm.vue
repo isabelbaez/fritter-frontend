@@ -3,22 +3,15 @@
 
 <template>
   <article>
-    <h3>Create A Freet</h3>
+    <h3>Contesting Freet</h3>
     <article>
-      <div>
-        <label for="content">Content:</label>
-        <textarea
-          id="content"
-          ref="content"
-          name="Content"
-          value="contentValue"
-        />
-      </div>
 
-      <button v-if="credScoreEnabled" @click="disableCredScore"> Disable Credibility Score</button>
-      <button v-else @click="enableCredScore"> Enable Credibility Score</button>
+      This Freet's credibility score should be
 
-      <section class="sources" v-if="credScoreEnabled">
+      <button v-if="inFavor === undefined || inFavor === true" @click="setPosCred"> Higher</button>
+      <button v-if="inFavor === undefined || inFavor === false" @click="setNegCred"> Lower</button>
+
+      <section class="sources">
       <article v-for="source in listedSources">
         <p>{{ source }}</p>
         <button @click="delSource(source)"> Delete Source</button>
@@ -48,7 +41,7 @@
 
     </article>
     <button @click="submit">
-      Create Freet
+      Contest Credibility
     </button>
   </article>
 </template>
@@ -57,25 +50,30 @@
 
 export default {
   name: 'FreetForm',
+  props: {
+    // Data from the stored freet
+    freet: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     /**
      * Options for submitting this form.
      */
     return {
-      listedSources: undefined,
+      listedSources: [],
       alerts: {}, // Displays success/error messages encountered during form submission
       callback: null, // Function to run after successful form submission
-      credScoreEnabled: false
+      inFavor: undefined
     };
   },
   methods: {
-    async enableCredScore() {
-      this.listedSources = [];
-      this.credScoreEnabled = true;
+    async setPosCred() {
+      this.inFavor = true;
     },
-    async disableCredScore() {
-      this.listedSources = undefined;
-      this.credScoreEnabled = false;
+    async setNegCred() {
+      this.inFavor = false;
     },
     async addSource() {
       const source = this.$refs["sources"].value;
@@ -91,7 +89,7 @@ export default {
       }
       this.listedSources = newSources;
     },
-    async submit() {
+    async submit(freetId) {
       /**
         * Submits a form with the specified options from data().
         */
@@ -101,27 +99,26 @@ export default {
         headers: {'Content-Type': 'application/json'},
       };
 
-      if (this.listedSources) {
-        let sources = '';
-        for (const source of this.listedSources) {
-          sources += source + ',';
-        }
-        options.body = JSON.stringify({content: this.$refs["content"].value , sources: sources});
-
-        this.$refs["sources"].value = '';
-        this.listedSources = [];
-      } else {
-        options.body = JSON.stringify({content: this.$refs["content"].value});
+      let sources = '';
+      for (const source of this.listedSources) {
+        sources += source + ',';
       }
 
-      this.$refs["content"].value = '';
+      if (this.inFavor) {
+        options.body = JSON.stringify({freetId: this.freet._id , inFavor: true, sources: sources});
+      } else {
+        options.body = JSON.stringify({freetId: this.freet._id , sources: sources});
+      }
+
+      this.$refs["sources"].value = '';
+      this.listedSources = [];
 
       try {
-        const r = await fetch('/api/freets', options);
+        const r = await fetch('/api/contestCredibility', options);
         if (!r.ok) {
           // If response is not okay, we throw an error and enter the catch block
           const res = await r.json();
-          throw new Error(res.error);
+          throw new Error(res.error);v
         }
 
         this.$store.commit('refreshFreets');
@@ -129,7 +126,7 @@ export default {
         this.$store.commit('refreshRefreets', this.$store.state.username);
         this.$store.commit('refreshComments', this.$store.state.username);
         
-        const message = 'Successfully created a freet!';
+        const message = 'Successfully submitted contest!';
         //this.alerts.push(message, 'success')
         this.$set(this.alerts, message, 'success');
         setTimeout(() => this.$delete(this.alerts, message), 3000);

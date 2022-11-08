@@ -201,7 +201,6 @@ export default {
 
         this.editing = false;
         this.$store.commit('refreshFreets');
-        this.$store.commit('refreshComments', this.$store.state.username);
         this.$store.commit('refreshLikes', this.$store.state.username);
         this.$store.commit('refreshRefreets', this.$store.state.username);
         this.$store.commit('refreshComments', this.$store.state.username);
@@ -234,7 +233,6 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments', this.$store.state.username);
           this.$store.commit('refreshLikes', this.$store.state.username);
           this.$store.commit('refreshRefreets', this.$store.state.username);
           this.$store.commit('refreshComments', this.$store.state.username);
@@ -259,7 +257,6 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments', this.$store.state.username);
           this.$store.commit('refreshLikes', this.$store.state.username);
           this.$store.commit('refreshRefreets', this.$store.state.username);
           this.$store.commit('refreshComments', this.$store.state.username);
@@ -295,7 +292,6 @@ export default {
             throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments', this.$store.state.username);
           this.$store.commit('refreshLikes', this.$store.state.username);
           this.$store.commit('refreshRefreets', this.$store.state.username);
           this.$store.commit('refreshComments', this.$store.state.username);
@@ -320,7 +316,6 @@ export default {
           throw new Error(res.error);
           }
           this.$store.commit('refreshFreets');
-          this.$store.commit('refreshComments', this.$store.state.username);
           this.$store.commit('refreshLikes', this.$store.state.username);
           this.$store.commit('refreshRefreets', this.$store.state.username);
           this.$store.commit('refreshComments', this.$store.state.username);
