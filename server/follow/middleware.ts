@@ -26,13 +26,13 @@ const isFollowExists = async (req: Request, res: Response, next: NextFunction) =
  */
  const isValidUnfollow = async (req: Request, res: Response, next: NextFunction) => {
 
-  const follow = await FollowCollection.findOne(req.params.followId);
-  const dtsUser = follow.dstUserId.toString();
+  const dstUserId = await UserCollection.findOneByUsername(req.params.dstUser);
+  const follow = await FollowCollection.findOneBySrcDstUser(req.session.userId, dstUserId._id);
 
-  if (follow.srcUserId.toString() !== req.session.userId.toString()) {
+  if (!follow) {
     res.status(403).json({
       error: {
-        notValidUnfollow: `User with user ID ${req.session.userId} is not the source user in follow with ID ${req.params.followId}.`
+        notValidUnfollow: `User with user ID ${req.session.userId} is not following user with user ID ${dstUserId._id}.`
       }
     });
     return;
@@ -46,13 +46,14 @@ const isFollowExists = async (req: Request, res: Response, next: NextFunction) =
 const isValidFollow = async (req: Request, res: Response, next: NextFunction) => {
 
   const user = await UserCollection.findOneByUserId(req.session.userId);
+  const dstUserId = await UserCollection.findOneByUsername(req.body.dstUser);
 
   const following = await FollowCollection.findAllFollowing(user.username);
 
   let already_following = false;
 
   for (let follow of following) {
-    if (follow.dstUserId.toString() === req.body.dstUserId.toString()) {
+    if (follow.dstUserId.toString() === dstUserId._id.toString()) {
       already_following = true;
       break;
     }
@@ -61,7 +62,7 @@ const isValidFollow = async (req: Request, res: Response, next: NextFunction) =>
   if (already_following) {
     res.status(413).json({
       error: {
-        duplicateFollow: `User with user ID ${req.session.userId} is already following User with user ID ${req.body.dstUserId}.`
+        duplicateFollow: `User with user ID ${req.session.userId} is already following User with userna,e ${req.body.dstUser}.`
       }
     });
     return;

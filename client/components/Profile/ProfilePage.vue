@@ -3,6 +3,17 @@ Default page that also displays freets
 <template>
   <main>
     <section>
+      <div class="left">
+        <h2>
+            Profile: {{$route.params.username}}
+          </h2>
+          <FollowUserForm
+            ref="followUserForm"/>
+          
+          <button v-if="isFollowing" @click="unfollowUser()">Unfollow</button>
+          <button v-else @click="followUser()">Follow</button>
+
+          </div>
       <div class="right">
           <GetLikesForm
             ref="getLikesForm"
@@ -94,15 +105,36 @@ import FreetComponent from '@/components/Freet/FreetComponent.vue';
 import GetLikesForm from '@/components/Profile/GetLikesForm.vue';
 import GetRefreetsForm from '@/components/Profile/GetRefreetsForm.vue';
 import GetCommentsForm from '@/components/Profile/GetCommentsForm.vue';
+import FollowUserForm from '@/components/Follow/FollowUserForm.vue';
 
 export default {
   name: 'ProfilePage',
-  components: {FreetComponent, GetLikesForm, GetRefreetsForm, GetCommentsForm},
+  components: {FreetComponent, GetLikesForm, GetRefreetsForm, GetCommentsForm,FollowUserForm},
+  data() {
+    return {
+      isFollowing: false,
+    }
+  },
   mounted() {
     this.$refs.getLikesForm.submit(this.$route.params.username);
     this.$refs.getRefreetsForm.submit(this.$route.params.username);
     this.$refs.getCommentsForm.submit(this.$route.params.username);
-  },
+
+    if (this.$refs.followUserForm.isFollowing(this.$route.params.username)) {
+      this.isFollowing = true;
+    }
+    //this.$refs.followUserForm.submit(this.$route.params.username);
+  }, 
+  methods: {
+    followUser() {
+      this.$refs.followUserForm.followUser(this.$route.params.username);
+      this.isFollowing = true;
+    },
+    unfollowUser() {
+      this.$refs.followUserForm.unfollowUser(this.$route.params.username);
+      this.isFollowing = false;
+    }
+  }
 };
 </script>
 

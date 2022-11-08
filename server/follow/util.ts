@@ -1,6 +1,7 @@
 import type {HydratedDocument} from 'mongoose';
 import moment from 'moment';
 import { Follow } from './model';
+import UserCollection from '../user/collection';
 
 // Update this if you add a property to the Freet type!
 type FollowResponse = {
@@ -25,17 +26,20 @@ const formatDate = (date: Date): string => moment(date).format('MMMM Do YYYY, h:
  * @param {HydratedDocument<Freet>} freet - A freet
  * @returns {FreetResponse} - The freet object formatted for the frontend
  */
-const constructFollowResponse = (follow: HydratedDocument<Follow>): FollowResponse => {
+const constructFollowResponse = async (follow: HydratedDocument<Follow>): Promise<FollowResponse> => {
   const followCopy: Follow = {
     ...follow.toObject({
       versionKey: false // Cosmetics; prevents returning of __v property
     })
   };
+  const srcUser =  await UserCollection.findOneByUserId(followCopy.srcUserId);
+  const dstUser =  await UserCollection.findOneByUserId(followCopy.dstUserId);
+
   return {
     ...followCopy,
     _id: followCopy._id.toString(),
-    srcUserId: followCopy.srcUserId.toString(),
-    dstUserId: followCopy.dstUserId.toString(),
+    srcUserId: srcUser.username,
+    dstUserId: dstUser.username,
     dateCreated: formatDate(follow.dateCreated),
   };
 };

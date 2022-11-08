@@ -48,6 +48,25 @@ class FollowCollection {
   }
 
   /**
+   * Find a follow by followId
+   *
+   * @param {string} followId - The id of the follow to find
+   * @return {Promise<HydratedDocument<Follow>> | Promise<null> } - The follow with the given followId, if any
+   */
+  static async findOneBySrcDstUser(srcUserId: Types.ObjectId | string, dstUserId: Types.ObjectId | string): Promise<HydratedDocument<Follow>> {
+    const srcUser = await UserCollection.findOneByUserId(srcUserId);
+    const following = await FollowCollection.findAllFollowing(srcUser.username);
+    let foundFollow;
+
+    for (const follow of following) {
+      if (dstUserId.toString() === follow.dstUserId.toString()) {
+        foundFollow = follow;
+      }
+    }
+    return foundFollow;
+  }
+
+  /**
    * Get all the follows in the database
    *
    * @return {Promise<HydratedDocument<Follow>[]>} - An array of all of the follows

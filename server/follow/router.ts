@@ -4,6 +4,7 @@ import * as userValidator from '../user/middleware';
 import * as followValidator from '../follow/middleware';
 import * as util from './util';
 import FollowCollection from './collection';
+import UserCollection from '../user/collection';
 
 const router = express.Router();
 
@@ -36,20 +37,20 @@ router.get(
 
     const allFollows = await FollowCollection.findAll();
     const response = allFollows.map(util.constructFollowResponse);
-    res.status(200).json(response);
+    res.status(200).json(await Promise.all(response));
   },
   [
     userValidator.isAuthorExists
   ],
   async (req: Request, res: Response, next: NextFunction) => {
 
-    if (req.query.followers === "true") {
+    if (req.query.followers !== undefined) {
       next();
       return;
     }
     const userFollowing = await FollowCollection.findAllFollowing(req.query.author as string);
     const response = userFollowing.map(util.constructFollowResponse);
-    res.status(200).json(response);
+    res.status(200).json(await Promise.all(response));
   },
   [
     userValidator.isAuthorExists
@@ -57,7 +58,7 @@ router.get(
   async (req: Request, res: Response) => {
     const userFollowers = await FollowCollection.findAllFollowers(req.query.author as string);
     const response = userFollowers.map(util.constructFollowResponse);
-    res.status(200).json(response);
+    res.status(200).json(await Promise.all(response));
   }
 );
 
@@ -79,13 +80,13 @@ router.post(
     followValidator.isValidFollow
   ],
   async (req: Request, res: Response) => {
-    console.log('plis');
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    const follow = await FollowCollection.addOne(userId, req.body.dstUserId);
+    const dstUserId = await UserCollection.findOneByUsername(req.body.dstUser);
+    const follow = await FollowCollection.addOne(userId, dstUserId._id);
 
     res.status(201).json({
       message: 'Your follow was created successfully.',
-      follow: util.constructFollowResponse(follow)
+      follow: await util.constructFollowResponse(follow)
     });
   }
 );
@@ -101,14 +102,18 @@ router.post(
  * @throws {404} - If the freetId is not valid
  */
 router.delete(
-  '/:followId?',
+  '/:dstUser?',
   [
     userValidator.isUserLoggedIn,
-    followValidator.isFollowExists,
     followValidator.isValidUnfollow
   ],
   async (req: Request, res: Response) => {
-    await FollowCollection.deleteOne(req.params.followId);
+    const userId = (req.session.userId as string) ?? '';
+    
+    const dstUserId = await UserCollection.findOneByUsername(req.params.dstUser);
+    const follow = await FollowCollection.findOneBySrcDstUser(userId, dstUserId._id);
+    
+    await FollowCollection.deleteOne(follow._id);
     res.status(200).json({
       message: 'Your follow was deleted successfully.'
     });

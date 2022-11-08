@@ -17,7 +17,28 @@
         v-for="user in $store.state.searchUsers.users"
         :key="user"
         :class="user">
-        {{user}}
+        <router-link
+          v-if="$store.state.username"
+          to= "/profile/"
+          param = user
+          >
+          {{user}} 
+        </router-link>
+
+        <!-- <FollowUserForm
+            ref="followUserForm"/>
+          
+          <button v-if="isFollowing(user)" @click="unfollowUser(user)">Unfollow</button>
+          <button v-else @click="followUser(user)">Follow</button> -->
+
+        <!-- <button v-if="isFollowing(user)" @click="unfollowUser(user)">
+          {{isFollowing(user)}}
+        </button>
+
+        <button v-else @click="followUser(user)">
+          Follow
+        </button> -->
+
       </article>
       <button @click="stopSearch">
           Close
@@ -37,16 +58,31 @@
 
 <script>
 import GetUsersForm from '@/components/Search/GetUsersForm.vue';
+import FollowUserForm from '@/components/Follow/FollowUserForm.vue';
 
 export default {
   name: 'SearchBar',
-  components: {GetUsersForm}, 
+  components: {GetUsersForm, FollowUserForm}, 
   methods: {    
     stopSearch() {
       /**
        * Updates freet to have the submitted draft content.
        */
       this.$store.commit('stopSearch');
+    }, 
+    followUser(user) {
+      this.$refs.followUserForm.followUser(user);
+      //this.isFollowing = true;
+    },
+    unfollowUser(user) {
+      this.$refs.followUserForm.unfollowUser(user);
+      //this.isFollowing = false;
+    },
+    isFollowing(user) {
+      if (this.$refs.followUserForm.isFollowing(user)) {
+        return true;
+      }
+      return false;
     }
   },
   mounted() {
