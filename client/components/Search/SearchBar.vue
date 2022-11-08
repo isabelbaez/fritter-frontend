@@ -19,25 +19,15 @@
         :class="user">
         <router-link
           v-if="$store.state.username"
-          to= "/profile/"
+          :to="`/profile/${user}`"
+          @click.native="refreshProfile(user)"
           param = user
           >
           {{user}} 
         </router-link>
 
-        <!-- <FollowUserForm
-            ref="followUserForm"/>
-          
-          <button v-if="isFollowing(user)" @click="unfollowUser(user)">Unfollow</button>
-          <button v-else @click="followUser(user)">Follow</button> -->
-
-        <!-- <button v-if="isFollowing(user)" @click="unfollowUser(user)">
-          {{isFollowing(user)}}
-        </button>
-
-        <button v-else @click="followUser(user)">
-          Follow
-        </button> -->
+        <button v-if="isFollowing(user)" @click="unfollowUser(user)">Unfollow</button>
+        <button v-else @click="followUser(user)">Follow</button>
 
       </article>
       <button @click="stopSearch">
@@ -58,35 +48,118 @@
 
 <script>
 import GetUsersForm from '@/components/Search/GetUsersForm.vue';
-import FollowUserForm from '@/components/Follow/FollowUserForm.vue';
 
 export default {
   name: 'SearchBar',
-  components: {GetUsersForm, FollowUserForm}, 
-  methods: {    
+  components: {GetUsersForm}, 
+  methods: {
+    refreshProfile(user) {
+      this.$store.commit('refreshLikes', user);
+      this.$store.commit('refreshRefreets', user);
+      this.$store.commit('refreshComments', user);
+    },
     stopSearch() {
       /**
        * Updates freet to have the submitted draft content.
        */
       this.$store.commit('stopSearch');
     }, 
-    followUser(user) {
-      this.$refs.followUserForm.followUser(user);
-      //this.isFollowing = true;
+    async followUser(user) {
+      const url = '/api/follows';
+      try {
+        //this.$store.commit('search');
+        const options = {
+          method: "POST",
+          body: JSON.stringify({dstUser: user.toString()}),
+          headers: {'Content-Type': 'application/json'},
+          message: 'Successfully followed user!',
+          callback: () => {
+          this.$set(this.alerts, params.message, 'success');
+          setTimeout(() => this.$delete(this.alerts, params.message), 3000)}
+        };
+        const rPut = await fetch(url,options);
+        const putRes = await rPut.json();
+        if (!rPut.ok) {
+          throw new Error(putRes.error);
+        }
+        //this.$store.commit('updateSearch', getRes);
+        const message = 'Successfully followed user!';
+        //const payload = {message, 'success'};
+        this.$store.commit('alert', message, 'success');
+
+      } catch (e) {
+        this.$store.commit('alert', e, 'error');
+      }
+      this.refreshFollows();
     },
-    unfollowUser(user) {
-      this.$refs.followUserForm.unfollowUser(user);
-      //this.isFollowing = false;
+    async unfollowUser(user) {
+      const url = `/api/follows/${user}`;
+      try {
+        //this.$store.commit('search');
+        const options = {
+          method: "DELETE",
+        };
+        console.log(options);
+        const rPut = await fetch(url,options);
+        const putRes = await rPut.json();
+        if (!rPut.ok) {
+          throw new Error(putRes.error);
+        }
+        //this.$store.commit('updateSearch', getRes);
+        const message = 'Successfully followed user!';
+        //const payload = {message, 'success'};
+        this.$store.commit('alert', message, 'success');
+
+      } catch (e) {
+        this.$store.commit('alert', e, 'error');
+      }
+      this.refreshFollows();
     },
     isFollowing(user) {
-      if (this.$refs.followUserForm.isFollowing(user)) {
-        return true;
+      return this.following.includes(user);
+    },
+    async refreshFollows() {
+      const url = `/api/follows?author=${this.$store.state.username}`;
+      try {
+        const r = await fetch(url);
+        const res = await r.json();
+        if (!r.ok) {
+          throw new Error(res.error);
+        }
+        const following = [];
+        for (const follow of res) {
+          following.push(follow.dstUserId);
+        }
+        this.following = following;
+      } catch (e) {
+        //this.$store.commit('alert', e, 'error');
       }
-      return false;
     }
   },
-  mounted() {
+  data() {
+    return {
+      following: [],
+    }
+  },
+  async mounted() {
     this.$refs.getUsersForm.submit();
+    //const following = this.$refs.followUserForm.getFollowing(this.$store.state.user);
+
+    const url = `/api/follows?author=${this.$store.state.username}`;
+    try {
+      const r = await fetch(url);
+      const res = await r.json();
+      if (!r.ok) {
+        throw new Error(res.error);
+      }
+      const following = [];
+      for (const follow of res) {
+        following.push(follow.dstUserId);
+      }
+      this.following = following;
+    } catch (e) {
+      //this.$store.commit('alert', e, 'error');
+    }
   },
 };
 </script>

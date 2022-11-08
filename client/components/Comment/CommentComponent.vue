@@ -7,7 +7,13 @@
   >
     <header>
       <h3 class="author">
-        @{{ comment.author }}
+        <router-link
+          :to="`/profile/${comment.author}`"
+          @click.native="refreshProfile(comment.author)"
+          param = user
+          >
+          @{{ comment.author }}
+        </router-link>
       </h3>
       <div
         v-if="$store.state.username === comment.author"
@@ -97,6 +103,11 @@ export default {
     };
   },
   methods: {
+    refreshProfile(user) {
+      this.$store.commit('refreshLikes', user);
+      this.$store.commit('refreshRefreets', user);
+      this.$store.commit('refreshComments', user);
+    },
     deleteComment() {
       /**
        * Deletes this comment.
@@ -219,7 +230,6 @@ export default {
        * @param params.callback - Function to run if the the request succeeds
        */
 
-      console.log(params.method);
       if (params.method === "DELETE") {
 
         const options = {

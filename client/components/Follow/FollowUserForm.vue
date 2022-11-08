@@ -29,6 +29,24 @@ export default {
         //this.$store.commit('alert', e, 'error');
         return false;
       }
+    },
+    async getFollowing(user) {
+      const url = `/api/follows?author=${this.$store.state.username}`;
+      try {
+        const r = await fetch(url);
+        const res = await r.json();
+        if (!r.ok) {
+          throw new Error(res.error);
+        }
+        
+        const following = [];
+        for (const follow of res) {
+          following.push(follow.dstUserId);
+        }
+        return following;
+      } catch (e) {
+        //this.$store.commit('alert', e, 'error');
+      }
     }, 
     async followUser(user) {
       const url = '/api/follows';

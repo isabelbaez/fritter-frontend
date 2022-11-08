@@ -7,7 +7,13 @@
   >
     <header>
       <h3 class="author">
-        @{{ freet.author }}
+        <router-link
+          :to="`/profile/${freet.author}`"
+          @click.native="refreshProfile(freet.author)"
+          param = user
+          >
+          @{{ freet.author }}
+        </router-link>
       </h3>
       <div
         v-if="$store.state.username === freet.author"
@@ -145,6 +151,11 @@ export default {
     };
   },
   methods: {
+    refreshProfile(user) {
+      this.$store.commit('refreshLikes', user);
+      this.$store.commit('refreshRefreets', user);
+      this.$store.commit('refreshComments', user);
+    },
     setContestingCred() {
       this.contestingCred = true;
     },

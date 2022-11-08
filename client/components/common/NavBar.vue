@@ -28,7 +28,8 @@
       </router-link>
       <router-link
         v-if="$store.state.username"
-        to= "/profile/isabelbaez"
+        @click.native="refreshProfile($store.state.username)"
+        :to="`/profile/${$store.state.username}`"
       >
         Profile 
       </router-link>
@@ -50,6 +51,22 @@
     </section>
   </nav>
 </template>
+
+<script>
+import InlineForm from '@/components/common/InlineForm.vue';
+
+export default {
+  name: 'GetUsersForm',
+  mixins: [InlineForm],
+  methods: {
+    refreshProfile(user) {
+      this.$store.commit('refreshLikes', user);
+      this.$store.commit('refreshRefreets', user);
+      this.$store.commit('refreshComments', user);
+    }
+  }
+};
+</script>
 
 <style scoped>
 nav {

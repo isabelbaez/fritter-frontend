@@ -9,10 +9,13 @@ Default page that also displays freets
           </h2>
           <FollowUserForm
             ref="followUserForm"/>
-          
+
+          <div v-if="$route.params.username !== $store.state.username">
+
           <button v-if="isFollowing" @click="unfollowUser()">Unfollow</button>
           <button v-else @click="followUser()">Follow</button>
 
+          </div>
           </div>
       <div class="right">
           <GetLikesForm
@@ -109,7 +112,7 @@ import FollowUserForm from '@/components/Follow/FollowUserForm.vue';
 
 export default {
   name: 'ProfilePage',
-  components: {FreetComponent, GetLikesForm, GetRefreetsForm, GetCommentsForm,FollowUserForm},
+  components: {FreetComponent, GetLikesForm, GetRefreetsForm, GetCommentsForm, FollowUserForm},
   data() {
     return {
       isFollowing: false,
