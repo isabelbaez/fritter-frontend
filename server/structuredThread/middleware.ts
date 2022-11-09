@@ -30,9 +30,7 @@ const isValidThreadFreetsContent = (req: Request, res: Response, next: NextFunct
     return;
   }
 
-  const content = [req.body.content1, req.body.content2, req.body.content3];
-
-  for (const text of content) {
+  for (const text of req.body.content) {
     if (!text.trim()) {
       res.status(400).json({
         error: 'Freet content must be at least one character long.'

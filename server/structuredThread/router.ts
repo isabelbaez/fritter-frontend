@@ -29,13 +29,24 @@ router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     // Check if authorId query parameter was supplied
-    if (req.query.author !== undefined) {
+    if (req.query.author !== undefined || req.query.threadId !== undefined) {
       next();
       return;
     }
 
     const allThreads = await StructuredThreadCollection.findAll();
     const response = allThreads.map(util.constructThreadResponse);
+    res.status(200).json(await Promise.all(response));
+  },
+  async (req: Request, res: Response, next: NextFunction) => {
+    // Check if authorId query parameter was supplied
+    if (req.query.author !== undefined) {
+      next();
+      return;
+    }
+
+    const thread = await StructuredThreadCollection.findOne(req.query.threadId as string);
+    const response = await util.constructThreadResponse(thread);
     res.status(200).json(response);
   },
   [
@@ -44,7 +55,7 @@ router.get(
   async (req: Request, res: Response) => {
     const authorFreets = await StructuredThreadCollection.findAllByUsername(req.query.author as string);
     const response = authorFreets.map(util.constructThreadResponse);
-    res.status(200).json(response);
+    res.status(200).json(await Promise.all(response));
   }
 );
 
@@ -69,13 +80,17 @@ router.post(
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     let thread;
 
-    const content = [req.body.content1, req.body.content2, req.body.content3];
+    const content = [];
+
+    for (const freetContent of req.body.content) {
+      content.push(freetContent);
+    }
 
     thread = await StructuredThreadCollection.addOne(userId, content);
     
     res.status(201).json({
       message: 'Your freet was created successfully.',
-      freet: util.constructThreadResponse(thread)
+      freet: await util.constructThreadResponse(thread)
     });
   }
 );

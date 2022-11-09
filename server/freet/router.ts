@@ -34,7 +34,7 @@ router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     // Check if authorId query parameter was supplied
-    if (req.query.author !== undefined || req.query.feed !== undefined) {
+    if (req.query.author !== undefined || req.query.feed !== undefined || req.query.freetId !== undefined) {
       next();
       return;
     }
@@ -43,6 +43,18 @@ router.get(
     const response = allFreets.map(util.constructFreetResponse);
 
     res.status(200).json(await Promise.all(response));
+  },
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    if (req.query.author !== undefined || req.query.feed !== undefined) {
+      next();
+      return;
+    }
+
+    const freet = await FreetCollection.findOne(req.query.freetId as string);
+
+    const response = await util.constructFreetResponse(freet);
+    res.status(200).json(response);
   },
   async (req: Request, res: Response, next: NextFunction) => {
 
@@ -140,13 +152,25 @@ router.get(
 
     const commentFreets: Array<Freet> = [];
 
-    for (const freet of allFreets) {
-      for (const commentId of authorComments) {
-        if (freet.comments.includes(commentId._id.toString())) {
-          commentFreets.push(freet);
-        }
+    for (const authorComment of authorComments) {
+      let authorCommentParent = authorComment.parentId;
+      let freet = await FreetCollection.findOne(authorCommentParent);
+
+      while (!freet) {
+        const comment = await CommentCollection.findOne(authorCommentParent);
+        freet = await FreetCollection.findOne(comment.parentId);
+        authorCommentParent = comment.parentId;
       }
+      commentFreets.push(freet);
     }
+
+    // for (const freet of allFreets) {
+    //   for (const commentId of authorComments) {
+    //     if (freet.comments.includes(commentId._id.toString())) {
+    //       commentFreets.push(freet);
+    //     }
+    //   }
+    // }
     const response = commentFreets.map(util.constructFreetResponse);
     res.status(200).json(await Promise.all(response));
   }

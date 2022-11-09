@@ -9,6 +9,7 @@ import FreetCollection from '../freet/collection';
 import CredibilityFilteringCollection from '../credibilityFiltering/collection';
 import FreetCredibilityScoreCollection from '../freetCredibilityScore/collection';
 import { User } from '../user/model';
+import StructuredThreadCollection from '../structuredThread/collection';
 
 /**
  * This files contains a class that has the functionality to explore freets
@@ -151,21 +152,37 @@ class FeedCollection {
       }
     }
 
-    for (const freetId of unfilteredFreetIds) {
-      const unfilteredFreet = await FreetCollection.findOne(freetId);
+    for (let freetId of unfilteredFreetIds) {
+      let unfilteredFreet = await FreetCollection.findOne(freetId);
 
-      const credScoreId = unfilteredFreet.credibilityScoreId;
+      while (!unfilteredFreet) {
+        const comment = await CommentCollection.findOne(freetId);
+        unfilteredFreet = await FreetCollection.findOne(comment.parentId);
+        freetId = comment.parentId.toString();
+      }
 
-      if (!credScoreId) {
-        if (filter.unscoredFreets) {
-          viewerFreetIds.push(freetId);
+      if (unfilteredFreet.threadId !== "Disabled") {
+        const thread = await StructuredThreadCollection.findOne(unfilteredFreet.threadId);
+        const firstFreet = await FreetCollection.findOne(thread.content[0]);
+        if (!viewerFreetIds.includes(firstFreet._id.toString())) {
+          if (filter.unscoredFreets) {
+            viewerFreetIds.push(firstFreet._id.toString());
+          }
         }
       } else {
-        const credScore = await FreetCredibilityScoreCollection.findOne(credScoreId);
-        if (credScore.value < 3.5) {
-          if (filter.lowScoredFreets) {  viewerFreetIds.push(freetId); }
-        } else if (credScore.value >= 3.5) {
-          if (filter.highScoredFreets) { viewerFreetIds.push(freetId); }
+        const credScoreId = unfilteredFreet.credibilityScoreId;
+
+        if (!credScoreId) {
+          if (filter.unscoredFreets) {
+            viewerFreetIds.push(freetId);
+          }
+        } else {
+          const credScore = await FreetCredibilityScoreCollection.findOne(credScoreId);
+          if (credScore.value < 3.5) {
+            if (filter.lowScoredFreets) {  viewerFreetIds.push(freetId); }
+          } else if (credScore.value >= 3.5) {
+            if (filter.highScoredFreets) { viewerFreetIds.push(freetId); }
+          }
         }
       }
     }

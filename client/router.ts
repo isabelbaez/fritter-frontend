@@ -4,6 +4,8 @@ import FreetsPage from './components/Freet/FreetsPage.vue';
 import AccountPage from './components/Account/AccountPage.vue';
 import LoginPage from './components/Login/LoginPage.vue';
 import ProfilePage from './components/Profile/ProfilePage.vue'
+import FreetDetails from './components/Freet/FreetDetails.vue'
+import ThreadDetails from './components/StructuredThreads/ThreadDetails.vue'
 import NotFound from './NotFound.vue';
 
 Vue.use(VueRouter);
@@ -13,6 +15,8 @@ const routes = [
   {path: '/account', name: 'Account', component: AccountPage},
   {path: '/login', name: 'Login', component: LoginPage},
   {path: '/profile/:username', name: 'Profile', component: ProfilePage},
+  {path: '/freet/:freetId', name: 'FreetDetails', component: FreetDetails},
+  {path: '/structuredThreads/:threadId', name: 'ThreadDetails', component: ThreadDetails},
   {path: '*', name: 'Not Found', component: NotFound}
 ];
 

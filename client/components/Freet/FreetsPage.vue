@@ -8,7 +8,13 @@
         <SearchBar />
 
       </header>
-      <FreetForm />
+
+      <ThreadForm v-if="isThread"/>
+      <FreetForm v-else/>
+
+      <button v-if="isThread" @click="makeFreet"> Convert Into Single Freet</button>
+      <button v-else @click="makeThread"> Convert Into Thread</button>
+      
     </section>
     <section v-else>
       <header>
@@ -63,23 +69,31 @@
 <script>
 import FreetComponent from '@/components/Freet/FreetComponent.vue';
 import FreetForm from '@/components/Freet/FreetForm.vue';
+import ThreadForm from '@/components/StructuredThreads/ThreadForm.vue';
 import GetFeedForm from '@/components/Feed/GetFeedForm.vue';
 import SearchBar from '@/components/Search/SearchBar.vue';
 import CredFilterForm from '@/components/Feed/CredFilterForm.vue';
 
 export default {
   name: 'FreetPage',
-  components: {FreetComponent, GetFeedForm, FreetForm, SearchBar, CredFilterForm},
+  components: {FreetComponent, GetFeedForm, FreetForm, SearchBar, CredFilterForm, ThreadForm},
   mounted() {
     this.$refs.getFeedForm.submit();
   },
   data() {
     return {
       credFilterEnabled: false,
+      isThread: false,
     }
   },
   methods: {
-    async enableCredFilter() {
+    makeThread() {
+      this.isThread = true;
+    },
+    makeFreet() {
+      this.isThread = false;
+    },
+    enableCredFilter() {
       this.credFilterEnabled = true;
     },
     async disableCredFilter() {

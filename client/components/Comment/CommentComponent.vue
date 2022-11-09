@@ -92,6 +92,9 @@ export default {
     comment: {
       type: Object,
       required: true
+    },
+    refresh: {
+      type: Function
     }
   },
   data() {
@@ -221,6 +224,7 @@ export default {
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
       }
+      this.refresh();
     },
     async likeRequest(params) {
       /**
@@ -279,6 +283,7 @@ export default {
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
       }
+      this.refresh();
     },
     async commentRequest(params) {
       /**
@@ -338,6 +343,7 @@ export default {
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
       }
+      this.refresh();
     },
   }
 };

@@ -4,31 +4,21 @@
 <template>
   <article
     class="freet"
-  >
+  >    
   <router-link
-    v-if="freet.threadId !== 'Disabled'"
-    :to="`/structuredThreads/${freet.threadId}`">
-    Open Thread
+    :to="`/`">
+    Go Back Home
   </router-link>
-
-  <router-link
-    v-else
-    :to="`/freet/${freet._id}`">
-    Open Tweet
-  </router-link>
-
     <header>
       <h3 class="author">
         <router-link
           :to="`/profile/${freet.author}`"
-          @click.native="refreshProfile(freet.author)"
-          param = user
-          >
-          @{{ freet.author }}
+          @click.native="refreshProfile(this.freet.author)">
+          @{{ this.freet.author }}
         </router-link>
       </h3>
       <div
-        v-if="$store.state.username === freet.author"
+        v-if="$store.state.username === this.freet.author"
         class="actions"
       >
         <button @click="deleteFreet">
@@ -54,13 +44,13 @@
     <p
       class="content"
     >
-      {{ freet.content }}
+      {{ this.freet.content }}
     </p>
-    <p class="credScore" v-if="freet.credibilityScore">
-      Credibility Score: {{freet.credibilityScore}}
+    <p class="credScore" v-if="this.freet.credibilityScore">
+      Credibility Score: {{this.freet.credibilityScore}}
     </p>
 
-    <div v-if="freet.author !== $store.state.username && freet.credibilityScore">
+    <div v-if="this.freet.author !== $store.state.username && this.freet.credibilityScore">
 
     <button v-if="contestingCred" @click="unsetContestingCred">
         Dismiss Contest
@@ -77,10 +67,9 @@
     />
     </div>
 
-
     <p class="info">
-      Posted at {{ freet.dateCreated}}
-      Likes: {{ freet.likes.length}}
+      Posted at {{ this.freet.dateCreated}}
+      Likes: {{ this.freet.likes.length}}
       <button @click="showLikes" v-if="!showingLikes">
           Show Likes
       </button>
@@ -88,7 +77,7 @@
           Hide Likes
       </button>
 
-      Refreets: {{ freet.refreets.length}}
+      Refreets: {{ this.freet.refreets.length}}
       <button @click="showRefreets" v-if="!showingRefreets">
           Show Refreets
       </button>
@@ -102,13 +91,13 @@
       v-if="showingLikes"
       class="likes"
     > 
-    {{ freet.likes }}
+    {{ this.freet.likes }}
     </p>
     <p
       v-if="showingRefreets"
       class="refreets"
     > 
-    {{ freet.refreets }}
+    {{ this.freet.refreets }}
     </p>
     <section class="alerts">
       <article
@@ -127,15 +116,16 @@
       </button>
     </section>
 
-    <!-- <section
-        v-if="freet.comments.length"
+    <section
+        v-if="this.freet.comments.length"
       >
         <CommentComponent
-          v-for="comment in freet.comments"
+          v-for="comment in this.freet.comments"
           :key="comment.id"
           :comment="comment"
+          :refresh="refresh"
         />
-    </section> -->
+    </section>
 
   </article>
 </template>
@@ -147,11 +137,16 @@ import ContestCredForm from '@/components/Freet/ContestCredForm.vue';
 export default {
   name: 'FreetComponent',
   components: {CommentComponent, ContestCredForm},
-  props: {
-    // Data from the stored freet
-    freet: {
-      type: Object,
-      required: true
+  async mounted() {
+    const url = `/api/freets?freetId=${this.$route.params.freetId}`;
+    try {
+      const r = await fetch(url);
+      const res = await r.json();
+      if (!r.ok) {
+        throw new Error(res.error);
+      }
+      this.freet = res;
+    } catch (e) {
     }
   },
   data() {
@@ -160,7 +155,7 @@ export default {
       showingRefreets: false, // Whether or not currently showing the freet's refreets
       creatingComment: false,
       contestingCred: false,
-      draft: this.freet.content, // Potentially-new content for this freet
+      freet: undefined,
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
@@ -175,6 +170,18 @@ export default {
     },
     unsetContestingCred() {
       this.contestingCred = false;
+    },
+    async refresh() {
+      const url = `/api/freets?freetId=${this.$route.params.freetId}`;
+      try {
+        const r = await fetch(url);
+        const res = await r.json();
+        if (!r.ok) {
+          throw new Error(res.error);
+        }
+        this.freet = res;
+      } catch (e) {
+      }
     },
     deleteFreet() {
       /**
@@ -359,13 +366,10 @@ export default {
        * @param params.callback - Function to run if the the request succeeds
        */
 
-      console.log(params.method);
       if (params.method === "DELETE") {
-
         const options = {
           method: params.method
         };
-
         try {
           const r = await fetch(`/api/likes/${this.freet._id}`, options);
           if (!r.ok) {
@@ -409,6 +413,7 @@ export default {
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
       }
+      this.refresh();
     },
     async refreetRequest(params) {
       /**
@@ -464,6 +469,7 @@ export default {
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
       }
+      this.refresh();
     },
     async commentRequest(params) {
       /**
@@ -492,6 +498,7 @@ export default {
         console.log(this.$store.state.likes);
 
         params.callback();
+        this.refresh();
       } catch (e) {
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
