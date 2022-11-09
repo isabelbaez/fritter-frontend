@@ -31,7 +31,7 @@
       <div class="directory" v-if="freet.threadId !== 'Disabled'">
 
       <button @click="toggleDirectory()">
-        {{1}}/{{threadFreets.length}}
+        {{getThreadIndex()}}/{{threadFreets.length}}
       </button>
 
       <div class="directory" v-if="showingDirectory">
@@ -173,7 +173,6 @@ export default {
         if (!tr.ok) {
           throw new Error(tres.error);
         }
-        console.log(tres);
         this.threadFreets = tres.content;
       } catch (e) {
       }
@@ -193,7 +192,7 @@ export default {
       creatingComment: false,
       contestingCred: false,
       showingDirectory: false,
-      threadFreets: undefined,
+      threadFreets: [],
       draft: this.freet.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
     };
@@ -212,6 +211,13 @@ export default {
     },
     setContestingCred() {
       this.contestingCred = true;
+    },
+    getThreadIndex() {
+      for (let i = 0; i < this.threadFreets.length; i++) {
+        if (this.threadFreets[i]._id.toString() === this.freet._id.toString()) {
+          return i + 1;
+        }
+      }
     },
     unsetContestingCred() {
       this.contestingCred = false;

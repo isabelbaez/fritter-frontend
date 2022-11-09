@@ -44,14 +44,18 @@ const constructCommentResponse = async (comment: HydratedDocument<Comment>): Pro
   for (const likeId of commentCopy.likes) {
 
     const like = await LikeCollection.findOne(likeId);
-    const user = await UserCollection.findOneByUserId(like.userId);
-    likes.push(user.username);
+    if (like) {
+      const user = await UserCollection.findOneByUserId(like.userId);
+      likes.push(user.username);
+    }
   }
 
   const comments: Array<CommentResponse> =[];
   for (const commentId of commentCopy.comments) {
     const comment = await CommentCollection.findOne(commentId);
-    comments.push(await constructCommentResponse(comment));
+    if (comment) {
+      comments.push(await constructCommentResponse(comment));
+    }
   }
 
   return {

@@ -25,7 +25,7 @@ type FreetResponse = {
   content: string;
   likes: Array<string>;
   refreets: Array<string>;
-  comments: Array<CommentResponse>
+  comments: Array<CommentResponse>;
   credibilityScore: undefined | number;
 };
 /**
@@ -62,27 +62,29 @@ const constructFreetResponse = async (freet: HydratedDocument<Freet>): Promise<F
   const likes: Array<string> =[];
 
   for (const likeId of freetCopy.likes) {
-
     const like = await LikeCollection.findOne(likeId);
-    
-    const user = await UserCollection.findOneByUserId(like.userId);
-    likes.push(user.username);
+    if (like) {
+      const user = await UserCollection.findOneByUserId(like.userId);
+      likes.push(user.username);
+    }
   }
 
   const refreets: Array<string> =[];
 
   for (const refreetId of freetCopy.refreets) {
-
     const refreet = await RefreetCollection.findOne(refreetId);
-    
-    const user = await UserCollection.findOneByUserId(refreet.userId);
-    refreets.push(user.username);
+    if (refreet) {
+      const user = await UserCollection.findOneByUserId(refreet.userId);
+      refreets.push(user.username);
+    }
   }
 
   const comments: Array<CommentResponse> =[];
   for (const commentId of freetCopy.comments) {
     const comment = await CommentCollection.findOne(commentId);
-    comments.push(await util.constructCommentResponse(comment));
+    if (comment) {
+      comments.push(await util.constructCommentResponse(comment));
+    }
   }
 
   return {

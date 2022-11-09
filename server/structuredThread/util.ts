@@ -23,7 +23,7 @@ type FreetResponse = {
   content: string;
   likes: Array<string>;
   refreets: Array<string>;
-  comments: Array<CommentResponse>
+  comments: Array<CommentResponse>;
   credibilityScore: undefined | number;
 };
 

@@ -29,7 +29,7 @@
       <div class="directory" v-if="freet.threadId !== 'Disabled'">
 
       <button @click="toggleDirectory()">
-        {{1}}/{{threadFreets.length}}
+        {{getThreadIndex()}}/{{threadFreets.length}}
       </button>
 
       <div class="directory" v-if="showingDirectory">
@@ -197,7 +197,7 @@ export default {
       contestingCred: false,
       freet: undefined,
       showingDirectory: false,
-      threadFreets: undefined,
+      threadFreets: [],
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
@@ -206,6 +206,13 @@ export default {
       this.$store.commit('refreshLikes', user);
       this.$store.commit('refreshRefreets', user);
       this.$store.commit('refreshComments', user);
+    },
+    getThreadIndex() {
+      for (let i = 0; i < this.threadFreets.length; i++) {
+        if (this.threadFreets[i]._id.toString() === this.freet._id.toString()) {
+          return i + 1;
+        }
+      }
     },
     setContestingCred() {
       this.contestingCred = true;

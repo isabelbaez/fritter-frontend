@@ -127,6 +127,7 @@
           v-for="comment in freet.comments"
           :key="comment.id"
           :comment="comment"
+          :refresh="refresh"
         />
     </section>
   </article>
