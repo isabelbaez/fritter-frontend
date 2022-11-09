@@ -5,10 +5,19 @@
   <article
     class="freet"
   >    
+
+
   <router-link
+    v-if="freet.threadId !== 'Disabled'"
+    :to="`/structuredThreads/${freet.threadId}`">
+    Go Back to Thread
+  </router-link>
+
+  <router-link v-else
     :to="`/`">
     Go Back Home
   </router-link>
+
     <header>
       <h3 class="author">
         <router-link
@@ -17,6 +26,23 @@
           @{{ this.freet.author }}
         </router-link>
       </h3>
+      <div class="directory" v-if="freet.threadId !== 'Disabled'">
+
+      <button @click="toggleDirectory()">
+        {{1}}/{{threadFreets.length}}
+      </button>
+
+      <div class="directory" v-if="showingDirectory">
+        <router-link v-for="dirFreet in threadFreets"
+          :to="`/freet/${dirFreet._id}`"
+          @click.native="refresh">
+          {{threadFreets.indexOf(dirFreet) + 1}}
+          {{freet.content.slice(0, 20)}}...
+        </router-link>
+        <div class="directory"></div>
+      </div>
+      </div>
+
       <div
         v-if="$store.state.username === this.freet.author"
         class="actions"
@@ -148,6 +174,20 @@ export default {
       this.freet = res;
     } catch (e) {
     }
+
+    if (this.freet.threadId !== "Disabled") {
+      const threadUrl = `/api/structuredThreads?threadId=${this.freet.threadId}`;
+      try {
+        const tr = await fetch(threadUrl);
+        const tres = await tr.json();
+        if (!tr.ok) {
+          throw new Error(tres.error);
+        }
+        console.log(tres);
+        this.threadFreets = tres.content;
+      } catch (e) {
+      }
+    }
   },
   data() {
     return {
@@ -156,6 +196,8 @@ export default {
       creatingComment: false,
       contestingCred: false,
       freet: undefined,
+      showingDirectory: false,
+      threadFreets: undefined,
       alerts: {} // Displays success/error messages encountered during freet modification
     };
   },
@@ -196,6 +238,12 @@ export default {
         }
       };
       this.request(params);
+    },
+    toggleDirectory() {
+      /**
+       * Updates freet to have the submitted draft content.
+       */
+      this.showingDirectory = !this.showingDirectory;
     },
     showCreateComment() {
       /**
