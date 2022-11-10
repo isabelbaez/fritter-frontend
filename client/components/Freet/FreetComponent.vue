@@ -609,7 +609,7 @@ export default {
 .mainInfo {
   display: flex;
   justify-content:space-between;
-  width: 60%;
+  width: 70%;
 }
 .author {
   font-family: Arial, Helvetica, sans-serif;
