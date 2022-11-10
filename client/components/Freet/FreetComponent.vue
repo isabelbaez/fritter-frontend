@@ -727,7 +727,7 @@ export default {
 .contestButton{
   font-family: Arial, Helvetica, sans-serif;
   font-weight: bold;
-  font-size: large;
+  font-size: medium;
   color:white;
   border-radius: 20px;
   border: 1px solid rgb(255, 174, 0);
