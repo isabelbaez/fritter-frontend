@@ -747,7 +747,7 @@ export default {
 
 .cred {
   display: flex;
-  width: 40%;
+  width: 50%;
   justify-content:space-between;
   font-weight: bold;
 }
