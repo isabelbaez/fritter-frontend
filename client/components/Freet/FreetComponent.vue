@@ -74,19 +74,20 @@
       <div v-if="freet.author !== $store.state.username && freet.credibilityScore"
       class="contest">
 
-      <button v-if="contestingCred" @click="unsetContestingCred">
-          Dismiss Contest
-      </button>
-
-      <button v-else @click="setContestingCred">
+      <button class="contestButton" @click="setContestingCred">
           Contest Score
       </button>
 
-      <ContestCredForm
-        v-if="contestingCred"
-        :freet="freet"
-        ref="contestCredForm"
-      />
+      <div class="modal-backdrop" v-if="contestingCred">
+        <div class="entire">
+          <button class="close" @click="unsetContestingCred">X</button>
+          <ContestCredForm
+            :freet="freet"
+            ref="contestCredForm"
+            :close="unsetContestingCred"
+          /> 
+      </div>
+    </div>
       </div>
     </div>
 
@@ -254,6 +255,35 @@ export default {
        */
       this.showingDirectory = !this.showingDirectory;
     },
+    async refresh() {
+      if (this.freet.threadId !== "Disabled") {
+        const threadUrl = `/api/structuredThreads?threadId=${this.freet.threadId}`;
+        try {
+          const tr = await fetch(threadUrl);
+          const tres = await tr.json();
+          if (!tr.ok) {
+            throw new Error(tres.error);
+          }
+          this.threadFreets = tres.content;
+        } catch (e) {
+        }
+      }
+      if (this.freet.likes.includes(this.$store.state.username)) {
+        this.liked = true;
+      }
+      if (this.freet.refreets.includes(this.$store.state.username)) {
+        this.refreeted = true;
+      }
+      if (this.freet.credibilityScore <= 2) {
+        this.scoreRange = "Red";
+      } else if (this.freet.credibilityScore <= 3) {
+        this.scoreRange = "Orange";
+      } else if (this.freet.credibilityScore < 4) {
+        this.scoreRange = "Yellow";
+      } else if (this.freet.credibilityScore <= 5) {
+        this.scoreRange = "Green";
+      }
+    },
     setContestingCred() {
       this.contestingCred = true;
     },
@@ -264,8 +294,10 @@ export default {
         }
       }
     },
-    unsetContestingCred() {
+    async unsetContestingCred() {
       this.contestingCred = false;
+      console.log('here');
+      await this.refresh();
     },
     deleteFreet() {
       /**
@@ -607,7 +639,7 @@ export default {
 }
 
 .mainInfo {
-  display: flex;
+  display: block;
   justify-content:space-between;
   width: 70%;
 }
@@ -617,6 +649,16 @@ export default {
   text-decoration: none;
   font-weight: bold;
   font-size: 100%;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 4;
 }
 
 .info {
@@ -633,8 +675,6 @@ export default {
 
 .date {
   font-size: medium;
-  padding-top: 1.5%;
-  padding-left: 2%;
 }
 
 /* .actions {
@@ -647,8 +687,24 @@ export default {
   justify-content:space-between;
 }
 
+.close {
+  background-color: white;
+  border: 1px solid white;
+  font-weight: bolder;
+  font-size: large;
+  color:darkgray;
+  padding-left: 98%;
+}
+.entire {
+  background-color: white;
+  width: 55%;
+  border-radius: 10px;
+  border: 20px solid white;
+  padding: 0.5%;
+}
+
 .directory{
-  padding-left: 20%;
+  padding-left: 10%;
 }
 
 .credScore{
@@ -666,6 +722,16 @@ export default {
 }
 .credScoreGreen{
   color:green;
+}
+
+.contestButton{
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: large;
+  color:white;
+  border-radius: 20px;
+  border: 1px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
 }
 
 

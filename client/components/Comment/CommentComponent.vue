@@ -5,16 +5,25 @@
   <article
     class="comment"
   >
-    <header>
-      <h3 class="author">
+    <header class="commentHeader">
+      <div class="mainInfo">
+      <p class="author">
         <router-link
+          class="authorLink"
           :to="`/profile/${comment.author}`"
           @click.native="refreshProfile(comment.author)"
           param = user
           >
           @{{ comment.author }}
         </router-link>
-      </h3>
+      </p>
+
+      <p class="date">
+      Posted at {{ comment.dateCreated}}
+      </p>
+
+    </div>
+
       <div
         v-if="$store.state.username === comment.author"
         class="actions"
@@ -23,15 +32,6 @@
           🗑️ Delete
         </button>
       </div>
-      <button @click="likeComment">
-          ❤️ Like
-      </button>
-      <button @click="unlikeComment">
-          💔 Unlike
-      </button>
-      <button @click="showCreateComment">
-          💬 Comment
-      </button>
     </header>
     <p
       class="content"
@@ -39,10 +39,22 @@
       {{ comment.content }}
     </p>
     <p class="info">
-      Posted at {{ comment.dateCreated}}
-      Likes: {{ comment.likes.length}}
+
+      <button @click="showCreateComment">
+          💬 Comment
+      </button>
+      Comments: {{ comment.comments.length}}
+
+      <button v-if="liked" @click="unlikeComment">
+          💔 Unlike
+      </button>
+
+      <button v-else @click="likeComment">
+          ❤️ Like
+      </button>
+
       <button @click="showLikes" v-if="!showingLikes">
-          Show Likes
+          Show Likes: {{ comment.likes.length}}
       </button>
       <button @click="hideLikes" v-if="showingLikes">
           Hide Likes
@@ -97,10 +109,16 @@ export default {
       type: Function
     }
   },
+  mounted() {
+    if (this.comment.likes.includes(this.$store.state.username)) {
+      this.liked = true;
+    }
+  },
   data() {
     return {
       showingLikes: false, // Whether or not currently showing the freet's likes
       creatingComment: false,
+      liked: false,
       draft: this.comment.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
     };
@@ -258,6 +276,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.liked = false;
       } else {
         const options = {
           method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
@@ -282,6 +301,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.liked = true;
       }
       this.refresh();
     },
@@ -351,8 +371,62 @@ export default {
 
 <style scoped>
 .comment {
-    border: 1px solid #111;
+    border: 0.5px solid rgb(228, 228, 228);
     padding: 20px;
+    padding-left: 5%;
     position: relative;
+    border-radius: 3px;
+    margin: 3px;
+    font-family: Arial, Helvetica, sans-serif;
 }
+
+.mainInfo {
+  display: block;
+  justify-content:space-between;
+  width: 70%;
+}
+.author {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 0px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 100%;
+}
+
+.info {
+  font-size: medium;
+}
+
+.content {
+  font-size: larger;
+}
+
+.actions {
+  justify-content:right;
+}
+
+.date {
+  font-size: medium;
+}
+
+/* .actions {
+  margin-right: 0px;
+  padding-left: 90%;
+} */
+
+.commentHeader {
+  display: flex;
+  justify-content:space-between;
+}
+
+.authorLink:link {
+  color:black;
+  text-decoration: none;
+}
+
+.authorLink:visited{
+  color:black;
+  text-decoration: none;
+}
+
 </style>

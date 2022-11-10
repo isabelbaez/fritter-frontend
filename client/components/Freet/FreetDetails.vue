@@ -2,10 +2,10 @@
 <!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
 
 <template>
+  <main class="freetDetails">
   <article
     class="freet"
   >    
-
 
   <router-link
     v-if="freet.threadId !== 'Disabled'"
@@ -13,26 +13,27 @@
     Go Back to Thread
   </router-link>
 
-  <router-link v-else
-    :to="`/`">
-    Go Back Home
-  </router-link>
-
-    <header>
-      <h3 class="author">
+    <header class="freetHeader">
+      <div class="mainInfo">
+      <p class="author">
         <router-link
+          class="authorLink"
           :to="`/profile/${freet.author}`"
           @click.native="refreshProfile(this.freet.author)">
           @{{ this.freet.author }}
         </router-link>
-      </h3>
+      </p>
+      <p class="date">
+        Posted at {{ freet.dateCreated}}
+      </p>
+    </div>
       <div class="directory" v-if="freet.threadId !== 'Disabled'">
 
-      <button @click="toggleDirectory()">
+      <button class="dirButton" @click="toggleDirectory()">
         {{getThreadIndex()}}/{{threadFreets.length}}
       </button>
 
-      <div class="directory" v-if="showingDirectory">
+      <div class="directoryLoop" v-if="showingDirectory">
         <router-link v-for="dirFreet in threadFreets"
           :to="`/freet/${dirFreet._id}`"
           @click.native="refresh">
@@ -45,73 +46,88 @@
 
       <div
         v-if="$store.state.username === this.freet.author"
-        class="actions"
-      >
+        class="actions">
         <button @click="deleteFreet">
           🗑️ Delete
         </button>
       </div>
-      <button @click="likeFreet">
-          ❤️ Like
-      </button>
-      <button @click="unlikeFreet">
-          💔 Unlike
-      </button>
-      <button @click="refreetFreet">
-          🔁 Refreet
-      </button>
-      <button @click="unrefreetFreet">
-          ✖️ Remove Refreet
-      </button>
-      <button @click="showCreateComment">
-          💬 Comment
-      </button>
     </header>
     <p
       class="content"
     >
       {{ this.freet.content }}
     </p>
-    <p class="credScore" v-if="this.freet.credibilityScore">
-      Credibility Score: {{this.freet.credibilityScore}}
-    </p>
 
-    <div v-if="this.freet.author !== $store.state.username && this.freet.credibilityScore">
+    <div class="cred">
+      <div class="credScore" v-if="freet.credibilityScore">
+        <p class="credScoreRed" v-if="scoreRange === 'Red'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+        <p class="credScoreOrange" v-if="scoreRange === 'Orange'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+        <p class="credScoreYellow" v-if="scoreRange === 'Yellow'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+        <p class="credScoreGreen" v-if="scoreRange === 'Green'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+      </div>
 
-    <button v-if="contestingCred" @click="unsetContestingCred">
-        Dismiss Contest
-    </button>
+      <div v-if="freet.author !== $store.state.username && freet.credibilityScore"
+      class="contest">
 
-    <button v-else @click="setContestingCred">
-        Contest Score
-    </button>
+      <button v-if="contestingCred" @click="unsetContestingCred">
+          Dismiss Contest
+      </button>
 
-    <ContestCredForm
-      v-if="contestingCred"
-      :freet="freet"
-      ref="contestCredForm"
-    />
+      <button v-else @click="setContestingCred">
+          Contest Score
+      </button>
+
+      <ContestCredForm
+        v-if="contestingCred"
+        :freet="freet"
+        ref="contestCredForm"
+      />
+      </div>
     </div>
 
     <p class="info">
-      Posted at {{ this.freet.dateCreated}}
-      Likes: {{ this.freet.likes.length}}
+      <button @click="showCreateComment">
+          💬 Comment
+      </button>
+      Comments: {{ freet.comments.length}}
+
+      <button v-if="liked" @click="unlikeFreet">
+          💔 Unlike
+      </button>
+
+      <button v-else @click="likeFreet">
+          ❤️ Like
+      </button>
+
       <button @click="showLikes" v-if="!showingLikes">
-          Show Likes
+          Show Likes: {{ freet.likes.length}}
       </button>
       <button @click="hideLikes" v-if="showingLikes">
           Hide Likes
       </button>
 
-      Refreets: {{ this.freet.refreets.length}}
+      <button v-if="refreeted" @click="unrefreetFreet">
+          ✖️ Remove Refreet
+      </button>
+
+      <button v-else @click="refreetFreet">
+          🔁 Refreet
+      </button>
+
       <button @click="showRefreets" v-if="!showingRefreets">
-          Show Refreets
+          Show Refreets: {{ freet.refreets.length}}
       </button>
       <button @click="hideRefreets" v-if="showingRefreets">
           Hide Refreets
       </button>
-
-      Comments: {{ freet.comments.length}}
     </p>
     <p
       v-if="showingLikes"
@@ -154,6 +170,7 @@
     </section>
 
   </article>
+</main>
 </template>
 
 <script>
@@ -188,6 +205,21 @@ export default {
       } catch (e) {
       }
     }
+    if (this.freet.likes.includes(this.$store.state.username)) {
+      this.liked = true;
+    }
+    if (this.freet.refreets.includes(this.$store.state.username)) {
+      this.refreeted = true;
+    }
+    if (this.freet.credibilityScore <= 2) {
+      this.scoreRange = "Red";
+    } else if (this.freet.credibilityScore <= 3) {
+      this.scoreRange = "Orange";
+    } else if (this.freet.credibilityScore < 4) {
+      this.scoreRange = "Yellow";
+    } else if (this.freet.credibilityScore <= 5) {
+      this.scoreRange = "Green";
+    }
   },
   data() {
     return {
@@ -195,6 +227,9 @@ export default {
       showingRefreets: false, // Whether or not currently showing the freet's refreets
       creatingComment: false,
       contestingCred: false,
+      scoreRange: undefined,
+      liked: false,
+      refreeted: false,
       freet: undefined,
       showingDirectory: false,
       threadFreets: [],
@@ -443,6 +478,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.liked = false;
       } else {
         const options = {
           method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
@@ -467,6 +503,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.liked = true;
       }
       this.refresh();
     },
@@ -501,6 +538,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.refreeted = false;
       } else {
         const options = {
           method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
@@ -523,6 +561,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.refreeted = true;
       }
       this.refresh();
     },
@@ -564,9 +603,118 @@ export default {
 </script>
 
 <style scoped>
+
 .freet {
-    border: 1px solid #111;
-    padding: 20px;
     position: relative;
+    margin: 3px;
+    font-family: Arial, Helvetica, sans-serif;
 }
+.freetDetails{
+  margin-top: 3%;
+  margin-left: 20%;
+}
+
+.mainInfo {
+  display: block;
+  justify-content:space-between;
+  width: 70%;
+}
+.author {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 0px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.info {
+  font-size: medium;
+}
+
+.content {
+  font-size: 30px;
+}
+
+.actions {
+  justify-content:right;
+}
+
+.date {
+  font-size: medium;
+}
+
+/* .actions {
+  margin-right: 0px;
+  padding-left: 90%;
+} */
+
+.freetHeader {
+  display: flex;
+  justify-content:space-between;
+}
+
+.directory{
+  padding-left: 20%;
+}
+
+.credScore{
+  font-size: large;
+}
+
+.credScoreRed{
+  color:red;
+}
+.credScoreOrange{
+  color:darkorange;
+}
+.credScoreYellow{
+  color:goldenrod;
+}
+.credScoreGreen{
+  color:green;
+}
+
+
+.dirButton {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: large;
+  color:white;
+  border-radius: 20px;
+  border: 1px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+}
+
+.cred {
+  display: flex;
+  width: 40%;
+  justify-content:space-between;
+  font-weight: bold;
+}
+
+.contest{
+  padding-top: 6%;
+}
+
+.expand:link {
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.expand:visited{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.authorLink:link {
+  color:black;
+  text-decoration: none;
+}
+
+.authorLink:visited{
+  color:black;
+  text-decoration: none;
+}
+
+
 </style>

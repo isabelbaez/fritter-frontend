@@ -2,11 +2,7 @@
 <!-- We've tagged some elements with classes; consider writing CSS using those classes to style them... -->
 
 <template>
-  <main>
-  <router-link
-    :to="`/`">
-    Go Back Home
-  </router-link>
+  <main class="threadDetails">
 
   <section class="alerts">
       <article
@@ -23,22 +19,23 @@
       :freet="freet">
 
     <article
-    class="freet"
+    class="thread"
     >   
-    
-    <router-link
-    :to="`/freet/${freet._id}`">
-    Open Tweet
-    </router-link>
 
-    <header>
-      <h3 class="author">
+    <header class="freetHeader">
+      <div class="mainInfo">
+      <p class="author">
         <router-link
+          class="authorLink"
           :to="`/profile/${freet.author}`"
           @click.native="refreshProfile(freet.author)">
           @{{freet.author }}
         </router-link>
-      </h3>
+      </p>
+      <p class="date">
+        Posted at {{ freet.dateCreated}}
+      </p>
+    </div>
 
       <h3 class="index">
         {{threadFreets.indexOf(freet) + 1}}/{{threadFreets.length}}
@@ -46,27 +43,11 @@
 
       <div
         v-if="$store.state.username === freet.author"
-        class="actions"
-      >
-        <button @click="deleteFreet(freet._id)">
-          🗑️ Delete
-        </button>
+        class="actions">
+      <button @click="deleteFreet(freet._id)">
+        🗑️ Delete
+      </button>
       </div>
-      <button @click="likeFreet(freet._id)">
-          ❤️ Like
-      </button>
-      <button @click="unlikeFreet(freet._id)">
-          💔 Unlike
-      </button>
-      <button @click="refreetFreet(freet._id)">
-          🔁 Refreet
-      </button>
-      <button @click="unrefreetFreet(freet._id)">
-          ✖️ Remove Refreet
-      </button>
-      <button @click="showCreateComment(threadFreets.indexOf(freet))">
-          💬 Comment
-      </button>
     </header>
     <p
       class="content"
@@ -75,30 +56,49 @@
     </p>
 
     <p class="info">
-      Posted at {{ freet.dateCreated}}
-      Likes: {{ freet.likes.length}}
+
+      <button @click="showCreateComment(threadFreets.indexOf(freet))">
+          💬 Comment
+      </button>
+
+      <button @click="toggleComments(threadFreets.indexOf(freet))" v-if="!showingComments[threadFreets.indexOf(freet)]">
+          Show Comments: {{ freet.comments.length}}
+      </button>
+      <button @click="toggleComments(threadFreets.indexOf(freet))" v-if="showingComments[threadFreets.indexOf(freet)]">
+          Hide Comments
+      </button>
+
+      <button v-if="liked[threadFreets.indexOf(freet)]" @click="unlikeFreet(freet._id)">
+          💔 Unlike
+      </button>
+
+      <button v-else @click="likeFreet(freet._id)">
+          ❤️ Like
+      </button>
+
+
       <button @click="toggleLikes(threadFreets.indexOf(freet))" v-if="!showingLikes[threadFreets.indexOf(freet)]">
-          Show Likes
+          Show Likes: {{ freet.likes.length}}
       </button>
       <button @click="toggleLikes(threadFreets.indexOf(freet))" v-if="showingLikes[threadFreets.indexOf(freet)]">
           Hide Likes
       </button>
 
-      Refreets: {{ freet.refreets.length}}
+      <button v-if="refreeted[threadFreets.indexOf(freet)]" @click="unrefreetFreet(freet._id)">
+          ✖️ Remove Refreet
+      </button>
+
+      <button v-else @click="refreetFreet(freet._id)">
+          🔁 Refreet
+      </button>
+
       <button @click="toggleRefreets(threadFreets.indexOf(freet))" v-if="!showingRefreets[threadFreets.indexOf(freet)]">
-          Show Refreets
+          Show Refreets: {{ freet.refreets.length}}
       </button>
       <button @click="toggleRefreets(threadFreets.indexOf(freet))" v-if="showingRefreets[threadFreets.indexOf(freet)]">
           Hide Refreets
       </button>
 
-      Comments: {{ freet.comments.length}}
-      <button @click="toggleComments(threadFreets.indexOf(freet))" v-if="!showingComments[threadFreets.indexOf(freet)]">
-          Show Comments
-      </button>
-      <button @click="toggleComments(threadFreets.indexOf(freet))" v-if="showingComments[threadFreets.indexOf(freet)]">
-          Hide Comments
-      </button>
     </p>
     <p
       v-if="showingLikes[threadFreets.indexOf(freet)]"
@@ -119,6 +119,12 @@
         Post
       </button>
     </section>
+
+    <router-link
+    class="expand"
+    :to="`/freet/${freet._id}`">
+    Open Tweet
+    </router-link>
 
     <section
         v-if="freet.comments.length && showingComments[threadFreets.indexOf(freet)]"
@@ -157,6 +163,17 @@ export default {
         this.showingLikes.push(false);
         this.showingRefreets.push(false);
         this.showingComments.push(false);
+
+        if (freet.likes.includes(this.$store.state.username)) {
+          this.liked.push(true);
+        } else {
+          this.liked.push(false);
+        }
+        if (freet.refreets.includes(this.$store.state.username)) {
+          this.refreeted.push(true);
+        } else {
+          this.refreeted.push(false);
+        }
       }
       console.log(this.threadFreets);
     } catch (e) {
@@ -168,6 +185,8 @@ export default {
       showingRefreets: [], // Whether or not currently showing the freet's refreets
       showingComments: [],
       creatingComment: [],
+      liked: [],
+      refreeted: [],
       threadFreets: [],
       alerts: {} // Displays success/error messages encountered during freet modification
     };
@@ -188,6 +207,24 @@ export default {
         }
         console.log(tres);
         this.threadFreets = tres.content;
+
+        for (const freet of this.threadFreets) {
+          this.creatingComment.push(false);
+          this.showingLikes.push(false);
+          this.showingRefreets.push(false);
+          this.showingComments.push(false);
+
+          if (freet.likes.includes(this.$store.state.username)) {
+            this.liked.push(true);
+          } else {
+            this.liked.push(false);
+          }
+          if (freet.refreets.includes(this.$store.state.username)) {
+            this.refreeted.push(true);
+          } else {
+            this.refreeted.push(false);
+          }
+        }
       } catch (e) {
       }
     },
@@ -436,6 +473,23 @@ export default {
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
       }
+
+      let index;
+      for (let i = 0; i < this.threadFreets.length; i++) {
+        if (this.threadFreets[i]._id.toString() === params.freetId.toString()) {
+          index = i;
+        }
+      }
+
+      const newLiked = [];
+      for (let i = 0; i < this.liked.length; i++) {
+        if (i === index) {
+          newLiked.push(!this.liked[i]);
+        } else {
+          newLiked.push(this.liked[i]);
+        }
+      }
+      this.liked = newLiked;
       this.refresh();
     },
     async refreetRequest(params) {
@@ -492,6 +546,22 @@ export default {
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
       }
+      let index;
+      for (let i = 0; i < this.threadFreets.length; i++) {
+        if (this.threadFreets[i]._id.toString() === params.freetId.toString()) {
+          index = i;
+        }
+      }
+
+      const newRefreeted = [];
+      for (let i = 0; i < this.refreeted.length; i++) {
+        if (i === index) {
+          newRefreeted.push(!this.refreeted[i]);
+        } else {
+          newRefreeted.push(this.refreeted[i]);
+        }
+      }
+      this.refreeted = newRefreeted;
       this.refresh();
     },
     async commentRequest(params) {
@@ -532,9 +602,89 @@ export default {
 </script>
 
 <style scoped>
-.freet {
-    border: 1px solid #111;
-    padding: 20px;
+.thread {
     position: relative;
+    margin: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+    border: 0.5px solid rgb(228, 228, 228);
+    padding: 2%;
 }
+.threadDetails{
+  margin-top: 3%;
+  margin-left: 20%;
+}
+
+.mainInfo {
+  display: block;
+  justify-content:space-between;
+  width: 70%;
+}
+.author {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 0px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.info {
+  font-size: medium;
+}
+
+.content {
+  font-size: 30px;
+}
+
+.actions {
+  justify-content:right;
+}
+
+.date {
+  font-size: medium;
+}
+
+/* .actions {
+  margin-right: 0px;
+  padding-left: 90%;
+} */
+
+.freetHeader {
+  display: flex;
+  justify-content:space-between;
+}
+
+.directory{
+  padding-left: 20%;
+}
+
+.dirButton {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: large;
+  color:white;
+  border-radius: 20px;
+  border: 1px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+}
+
+.expand:link {
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.expand:visited{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.authorLink:link {
+  color:black;
+  text-decoration: none;
+}
+
+.authorLink:visited{
+  color:black;
+  text-decoration: none;
+}
+
 </style>

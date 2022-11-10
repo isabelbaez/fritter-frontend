@@ -160,7 +160,7 @@ section {
 .filterContainer {
   margin-left: 35%;
   margin-top: 7%;
-  box-shadow: 5px 5px 5px 5px#888888;
+  box-shadow: 5px 5px 5px #888888;
   position: fixed;
   background-color: white;
   border-radius: 10px;

@@ -2,31 +2,37 @@
 <!-- This is just an example; feel free to define any reusable components you want! -->
 
 <template>
-  <article>
-    <h3>Contesting Freet</h3>
+  <article class="all">
+    <p class="title">Contesting Freet</p>
     <article>
 
-      This Freet's credibility score should be
+      <div  class="question">
 
-      <button v-if="inFavor === undefined || inFavor === true" @click="setPosCred"> Higher</button>
-      <button v-if="inFavor === undefined || inFavor === false" @click="setNegCred"> Lower</button>
+      <p class="intro"> Freet's credibility score should be: </p>
 
-      <section class="sources">
-      <article v-for="source in listedSources">
+      <button class="inFavor" v-if="inFavor === undefined || inFavor === true" @click="setPosCred"> Higher</button>
+      <button class="Against" v-if="inFavor === undefined || inFavor === false" @click="setNegCred"> Lower</button>
+
+    </div>
+
+    <section class="sources" v-if="inFavor !== undefined">
+      <article class="addedSources" v-for="source in listedSources">
         <p>{{ source }}</p>
-        <button @click="delSource(source)"> Delete Source</button>
+        <button class="delButton" @click="delSource(source)"> Delete Source</button>
       </article>
 
+      <div class="add">
       <div>
         <label for="sources">Add A Source:</label>
-        <input
+        <input class="input"
           id="sources"
           name="Sources"
           ref="sources"
         />
       </div>
 
-      <button @click="addSource"> New Source</button>
+      <button class="addButton" @click="addSource"> Add</button>
+    </div>
     </section>
 
       <section class="alerts">
@@ -40,7 +46,7 @@
     </section>
 
     </article>
-    <button @click="submit">
+    <button class="post" @click="submit">
       Contest Credibility
     </button>
   </article>
@@ -55,6 +61,9 @@ export default {
     freet: {
       type: Object,
       required: true
+    },
+    close: {
+      type: Function,
     }
   },
   data() {
@@ -135,12 +144,90 @@ export default {
         this.$set(this.alerts, e, 'error');
         setTimeout(() => this.$delete(this.alerts, e), 3000);
       }
+      this.close();
     }
   }
 };
 </script>
 
 <style scoped>
+
+
+.title {
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.all {
+  background-color: white;
+}
+
+.addButton {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  border: 3px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+}
+
+.delButton {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  height: 10%;
+  margin-top: 2%;
+  margin-left: 5%;
+  border: 3px solid red;
+  background-color: red;
+}
+
+/* .addedSource{
+  backgroundcolor:grey;
+  border-radius: 20px;
+} */
+
+.post {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  border: 5px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+  margin-top: 5px;
+  margin-left: 80%;
+}
+
+.input{
+  border-radius: 10px;
+  border: 0px;
+  background-color: rgb(227, 227, 227);
+  height: 25px;
+  font-size: medium;
+  padding: 10px;
+}
+
+.add{
+  display: flex;
+  justify-content: left;
+}
+
+.addedSources {
+  display: flex;
+  background-color:rgb(227, 227, 227);
+  border-radius: 30px;
+  justify-content: space-between;
+  padding-left: 2%;
+  padding-right: 2%;
+  margin-bottom: 2%;
+}
+
 form {
   border: 1px solid #111;
   padding: 0.5rem;
@@ -149,6 +236,44 @@ form {
   justify-content: space-between;
   margin-bottom: 14px;
   position: relative;
+}
+
+.intro {
+  font-size: large;
+  font-weight: normal;
+}
+
+.question {
+  display: block;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.inFavor{
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  border: 5px solid green;
+  background-color: green;
+  margin-top: 1%;
+  margin-right: 5%;
+}
+
+.Against{
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  border: 5px solid red;
+  background-color: red;
+  margin-top: 1%;
+  margin-right: 5%;
+}
+.sources {
+  margin-top: 5%;
 }
 
 article > div {

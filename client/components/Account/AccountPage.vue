@@ -2,7 +2,7 @@
 <!-- User should be authenticated in order to see this page -->
 
 <template>
-  <main>
+  <main class="account">
     <section>
       <header>
         <h2>Account settings for @{{ $store.state.username }}</h2>
@@ -36,3 +36,11 @@ export default {
   }
 };
 </script>
+
+<style>
+.account {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 25%;
+}
+
+</style>
