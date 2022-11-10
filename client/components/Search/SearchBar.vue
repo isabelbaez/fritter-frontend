@@ -4,15 +4,17 @@
 
 <template>
   <nav>
-    <div class="right">
+    <div class="userForm">
       <GetUsersForm
         ref="getUsersForm"
         value="content"
-        placeholder="🔍 Search for users"
-        button="🔄 Search Users"
       />
     </div>
-    <section v-if="$store.state.isSearching">
+
+    <article class="users" v-if="$store.state.isSearching">
+      <button class="closeButton" @click="stopSearch">
+          X
+      </button>
       <article
         v-for="user in $store.state.searchUsers.users"
         :key="user"
@@ -30,10 +32,7 @@
         <button v-else @click="followUser(user)">Follow</button>
 
       </article>
-      <button @click="stopSearch">
-          Close
-      </button>
-    </section>
+    </article>
     <section class="alerts">
       <article
         v-for="(status, alert, index) in $store.state.alerts"
@@ -166,38 +165,33 @@ export default {
 
 <style scoped>
 nav {
-    padding: 1vw 2vw;
-    background-color: #ccc;
-    display: flex;
+    background-color: white;
+    display: block;
     justify-content: space-between;
-    align-items: center;
     position: relative;
+    padding-bottom: 10%;
 }
 
-.title {
-    font-size: 32px;
-    margin: 0 5px;
+.userForm {
+  padding-top: 20%;
 }
 
-img {
-    height: 32px;
+.closeButton {
+  background-color: white;
+  color:darkgray;
+  border: 0px;
+  margin-left: 98%;
+  font-size: medium;
+  font-weight: bolder;
 }
 
-.left {
-	display: flex;
-	align-items: center;
-}
-
-.right {
-    font-size: 20px;
-    display: grid;
-    gap: 16px;
-    grid-auto-flow: column;
-    align-items: center;
-}
-
-.right a {
-    margin-left: 5px;
+.users {
+   background-color: white;
+   box-shadow: 5px 5px 5px 5px#888888;
+   border-radius: 10px;
+   padding: 10%;
+   width: 100%;
+   height: 300px;
 }
 
 .alerts {

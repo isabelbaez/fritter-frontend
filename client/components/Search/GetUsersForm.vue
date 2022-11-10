@@ -1,11 +1,35 @@
 <!-- Form for getting freets (all, from user) (inline style) -->
+<template>
+  <form @submit.prevent="submit">
+    <input class="input"
+      v-model="value"
+      type="text"
+      :placeholder="'Search for users'"
+    >
+    <button class="searchButton"
+      type="submit"
+    >
+      Search
+    </button>
+    <section class="alerts">
+      <article
+        v-for="(status, alert, index) in alerts"
+        :key="index"
+        :class="status"
+      >
+        <p>{{ alert }}</p>
+      </article>
+    </section>
+  </form>
+</template>
 
 <script>
-import InlineForm from '@/components/common/InlineForm.vue';
 
 export default {
   name: 'GetUsersForm',
-  mixins: [InlineForm],
+  data() {
+    return {value: '', alerts: {}};
+  },
   methods: {
     async submit() {
 
@@ -46,3 +70,25 @@ export default {
   }
 };
 </script>
+
+<style>
+
+.searchButton{
+  background-color: rgb(255, 174, 0);;
+  border: 0px;
+  color: white;
+  border-radius: 10px;
+  height: 25px;
+  font-size: medium;
+  font-weight: bolder;
+}
+
+.input{
+  border-radius: 10px;
+  border: 0px;
+  background-color: rgb(227, 227, 227);
+  height: 25px;
+  font-size: medium;
+  padding: 10px;
+}
+</style>

@@ -1,11 +1,14 @@
 Default page that also displays freets
 
 <template>
-  <main>
-    <section>
-      <div class="left">
-        <h2>
-            Profile: {{$route.params.username}}
+  <main class="principal">
+    <div class="profileHeader">
+      <div class="banner">
+      "   "
+      </div>
+    <div class="left">
+        <h2 class="profileName">
+            {{$route.params.username}}
           </h2>
           <FollowUserForm
             ref="followUserForm"/>
@@ -17,6 +20,9 @@ Default page that also displays freets
 
           </div>
           </div>
+      </div>
+  <main class="profile">
+    <section>
       <div class="right">
           <GetLikesForm
             ref="getLikesForm"
@@ -101,6 +107,7 @@ Default page that also displays freets
       </article>
     </section>
   </main>
+</main>
 </template>
 
 <script>
@@ -145,6 +152,32 @@ export default {
 section {
   display: flex;
   flex-direction: column;
+}
+
+.profileName {
+  font-size: 50px;
+  padding-left: 30%;
+  height: 40px;
+}
+
+.banner{
+  background-color: coral;
+  width: 100%;
+  height: 150px;
+}
+
+.profileHeader{
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+  background-color: white;
+}
+.principal{
+  font-family: Arial, Helvetica, sans-serif;
+}
+.profile {
+  margin-left: 25%;
+  padding-top: 20%;
 }
 
 header, header > * {

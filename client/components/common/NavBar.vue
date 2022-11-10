@@ -5,40 +5,45 @@
 <template>
   <nav>
     <div class="left">
-      <img src="../../public/logo.svg">
+      <img class="logo" src="../../public/logo.png">
       <h1 class="title">
         Fritter
       </h1>
     </div>
     <div class="right">
-      <router-link to="/">
+
+      <router-link class="router" to="/">
         Home
       </router-link>
-      <router-link
+
+      <router-link class="router" 
         v-if="$store.state.username"
         to="/account"
       >
         Account
       </router-link>
-      <router-link
+
+      <router-link class="router" 
         v-else
         to="/login"
       >
         Login
       </router-link>
-      <router-link
+
+      <router-link class="router" 
         v-if="$store.state.username"
         @click.native="refreshProfile($store.state.username)"
         :to="`/profile/${$store.state.username}`"
       >
         Profile 
       </router-link>
-      <router-link
+      <router-link class="router" 
         v-else
         to="/login"
       >
         Login
       </router-link>
+      
     </div>
     <section class="alerts">
       <article
@@ -71,15 +76,17 @@ export default {
 <style scoped>
 nav {
     padding: 1vw 2vw;
-    background-color: #ccc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: white;
+    border-right: 1px solid rgb(184, 184, 184);
+    height: 100%;
+    width: 25%;
+    position: fixed;
+    z-index: 2;
 }
 
 .title {
-    font-size: 32px;
+    font-size: 70px;
     margin: 0 5px;
 }
 
@@ -90,18 +97,41 @@ img {
 .left {
 	display: flex;
 	align-items: center;
+  height: 20%;
 }
 
 .right {
-    font-size: 20px;
-    display: grid;
-    gap: 16px;
-    grid-auto-flow: column;
-    align-items: center;
+    font-size: 25px;
+    display: block;
+    justify-content: space-evenly;
+    width: 10%;
+    align-self: center;
+    padding-left: 35%;
+    padding-top: 20%;
+    margin-left: 0%;
 }
 
-.right a {
-    margin-left: 5px;
+.router {
+  padding: 100%;
+  text-decoration: none;
+}
+
+.router:link {
+  color: black;
+}
+
+.router:visited {
+  color: black;
+}
+
+.router:hover {
+  color: black;
+  text-decoration:underline;
+}
+
+.logo {
+  width: 80px;
+  height: 89px
 }
 
 .alerts {

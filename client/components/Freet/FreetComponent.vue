@@ -5,115 +5,128 @@
   <article
     class="freet"
   >
-  <router-link
-    v-if="freet.threadId !== 'Disabled'"
-    :to="`/structuredThreads/${freet.threadId}`">
-    Open Thread
-  </router-link>
 
-  <router-link
-    v-else
-    :to="`/freet/${freet._id}`">
-    Open Tweet
-  </router-link>
-
-    <header>
-      <h3 class="author">
+    <header class="freetHeader">
+      <div class="mainInfo">
+      <p class="author">
         <router-link
+          class="authorLink"
           :to="`/profile/${freet.author}`"
           @click.native="refreshProfile(freet.author)"
           param = user
           >
           @{{ freet.author }}
         </router-link>
-      </h3>
+      </p>
+
+      <p class="date">
+      Posted at {{ freet.dateCreated}}
+      </p>
+    </div>
 
       <div class="directory" v-if="freet.threadId !== 'Disabled'">
 
-      <button @click="toggleDirectory()">
-        {{getThreadIndex()}}/{{threadFreets.length}}
-      </button>
+        <button class="dirButton" @click="toggleDirectory()">
+          {{getThreadIndex()}}/{{threadFreets.length}}
+        </button>
 
-      <div class="directory" v-if="showingDirectory">
-        <router-link v-for="dirFreet in threadFreets"
-          :to="`/freet/${dirFreet._id}`">
-          {{threadFreets.indexOf(dirFreet) + 1}}
-          {{freet.content.slice(0, 20)}}...
-        </router-link>
-        <div class="directory"></div>
+        <div class="directoryLoop" v-if="showingDirectory">
+          <router-link v-for="dirFreet in threadFreets"
+            :to="`/freet/${dirFreet._id}`">
+            {{threadFreets.indexOf(dirFreet) + 1}}
+            {{freet.content.slice(0, 20)}}...
+          </router-link>
+          <div class="directory"></div>
+        </div>
       </div>
-      </div>
-      
-      <div
-        v-if="$store.state.username === freet.author"
-        class="actions"
-      >
+
+      <div v-if="$store.state.username === freet.author"
+        class="actions">
         <button @click="deleteFreet">
           🗑️ Delete
         </button>
       </div>
-      <button @click="likeFreet">
-          ❤️ Like
-      </button>
-      <button @click="unlikeFreet">
-          💔 Unlike
-      </button>
-      <button @click="refreetFreet">
-          🔁 Refreet
-      </button>
-      <button @click="unrefreetFreet">
-          ✖️ Remove Refreet
-      </button>
-      <button @click="showCreateComment">
-          💬 Comment
-      </button>
+
     </header>
+
     <p
       class="content"
     >
       {{ freet.content }}
     </p>
-    <p class="credScore" v-if="freet.credibilityScore">
-      Credibility Score: {{freet.credibilityScore}}
-    </p>
 
-    <div v-if="freet.author !== $store.state.username && freet.credibilityScore">
+    <div class="cred">
+      <div class="credScore" v-if="freet.credibilityScore">
+        <p class="credScoreRed" v-if="scoreRange === 'Red'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+        <p class="credScoreOrange" v-if="scoreRange === 'Orange'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+        <p class="credScoreYellow" v-if="scoreRange === 'Yellow'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+        <p class="credScoreGreen" v-if="scoreRange === 'Green'">
+          Credibility Score: {{freet.credibilityScore}}
+        </p>
+      </div>
 
-    <button v-if="contestingCred" @click="unsetContestingCred">
-        Dismiss Contest
-    </button>
+      <div v-if="freet.author !== $store.state.username && freet.credibilityScore"
+      class="contest">
 
-    <button v-else @click="setContestingCred">
-        Contest Score
-    </button>
+      <button v-if="contestingCred" @click="unsetContestingCred">
+          Dismiss Contest
+      </button>
 
-    <ContestCredForm
-      v-if="contestingCred"
-      :freet="freet"
-      ref="contestCredForm"
-    />
+      <button v-else @click="setContestingCred">
+          Contest Score
+      </button>
+
+      <ContestCredForm
+        v-if="contestingCred"
+        :freet="freet"
+        ref="contestCredForm"
+      />
+      </div>
     </div>
 
-
     <p class="info">
-      Posted at {{ freet.dateCreated}}
-      Likes: {{ freet.likes.length}}
+
+      <button @click="showCreateComment">
+          💬 Comment
+      </button>
+      Comments: {{ freet.comments.length}}
+
+      <button v-if="liked" @click="unlikeFreet">
+          💔 Unlike
+      </button>
+
+      <button v-else @click="likeFreet">
+          ❤️ Like
+      </button>
+
       <button @click="showLikes" v-if="!showingLikes">
-          Show Likes
+          Show Likes: {{ freet.likes.length}}
       </button>
       <button @click="hideLikes" v-if="showingLikes">
           Hide Likes
       </button>
 
-      Refreets: {{ freet.refreets.length}}
+      <button v-if="refreeted" @click="unrefreetFreet">
+          ✖️ Remove Refreet
+      </button>
+
+      <button v-else @click="refreetFreet">
+          🔁 Refreet
+      </button>
+
       <button @click="showRefreets" v-if="!showingRefreets">
-          Show Refreets
+          Show Refreets: {{ freet.refreets.length}}
       </button>
       <button @click="hideRefreets" v-if="showingRefreets">
           Hide Refreets
       </button>
 
-      Comments: {{ freet.comments.length}}
     </p>
     <p
       v-if="showingLikes"
@@ -143,6 +156,20 @@
         Post
       </button>
     </section>
+
+  <router-link
+    class="expand"
+    v-if="freet.threadId !== 'Disabled'"
+    :to="`/structuredThreads/${freet.threadId}`">
+    Open Thread
+  </router-link>
+
+  <router-link
+    class="expand"
+    v-else
+    :to="`/freet/${freet._id}`">
+    Open Tweet
+  </router-link>
 
     <!-- <section
         v-if="freet.comments.length"
@@ -177,6 +204,21 @@ export default {
       } catch (e) {
       }
     }
+    if (this.freet.likes.includes(this.$store.state.username)) {
+      this.liked = true;
+    }
+    if (this.freet.refreets.includes(this.$store.state.username)) {
+      this.refreeted = true;
+    }
+    if (this.freet.credibilityScore <= 2) {
+      this.scoreRange = "Red";
+    } else if (this.freet.credibilityScore <= 3) {
+      this.scoreRange = "Orange";
+    } else if (this.freet.credibilityScore < 4) {
+      this.scoreRange = "Yellow";
+    } else if (this.freet.credibilityScore <= 5) {
+      this.scoreRange = "Green";
+    }
   },
   props: {
     // Data from the stored freet
@@ -192,6 +234,9 @@ export default {
       creatingComment: false,
       contestingCred: false,
       showingDirectory: false,
+      scoreRange: undefined,
+      liked: false,
+      refreeted: false,
       threadFreets: [],
       draft: this.freet.content, // Potentially-new content for this freet
       alerts: {} // Displays success/error messages encountered during freet modification
@@ -430,6 +475,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.liked = false;
       } else {
         const options = {
           method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
@@ -454,6 +500,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.liked = true;
       }
     },
     async refreetRequest(params) {
@@ -487,6 +534,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.refreeted = false;
       } else {
         const options = {
           method: params.method, body: params.body, headers: {'Content-Type': 'application/json'}
@@ -509,6 +557,7 @@ export default {
           this.$set(this.alerts, e, 'error');
           setTimeout(() => this.$delete(this.alerts, e), 3000);
         }
+        this.refreeted = true;
       }
     },
     async commentRequest(params) {
@@ -549,8 +598,117 @@ export default {
 
 <style scoped>
 .freet {
-    border: 1px solid #111;
+    border: 1px solid rgb(190, 190, 190);
     padding: 20px;
     position: relative;
+    border-radius: 3px;
+    margin: 3px;
+    font-family: Arial, Helvetica, sans-serif;
 }
+
+.mainInfo {
+  display: flex;
+  justify-content:space-between;
+  width: 53%;
+}
+.author {
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 0px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 100%;
+}
+
+.info {
+  font-size: medium;
+}
+
+.content {
+  font-size: larger;
+}
+
+.actions {
+  justify-content:right;
+}
+
+.date {
+  font-size: medium;
+  padding-top: 1.5%;
+  padding-left: 2%;
+}
+
+/* .actions {
+  margin-right: 0px;
+  padding-left: 90%;
+} */
+
+.freetHeader {
+  display: flex;
+  justify-content:space-between;
+}
+
+.directory{
+  padding-left: 30%;
+}
+
+.credScore{
+  font-size: large;
+}
+
+.credScoreRed{
+  color:red;
+}
+.credScoreOrange{
+  color:darkorange;
+}
+.credScoreYellow{
+  color:goldenrod;
+}
+.credScoreGreen{
+  color:green;
+}
+
+
+.dirButton {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: large;
+  color:white;
+  border-radius: 20px;
+  border: 1px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+}
+
+.cred {
+  display: flex;
+  width: 35%;
+  justify-content:space-between;
+  font-weight: bold;
+}
+
+.contest{
+  padding-top: 6%;
+}
+
+.expand:link {
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.expand:visited{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.authorLink:link {
+  color:black;
+  text-decoration: none;
+}
+
+.authorLink:visited{
+  color:black;
+  text-decoration: none;
+}
+
+
 </style>

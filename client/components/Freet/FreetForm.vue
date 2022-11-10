@@ -2,8 +2,7 @@
 <!-- This is just an example; feel free to define any reusable components you want! -->
 
 <template>
-  <article>
-    <h3>Create A Freet</h3>
+  <article class="all">
     <article>
       <div>
         <label for="content">Content:</label>
@@ -15,8 +14,14 @@
         />
       </div>
 
-      <button v-if="credScoreEnabled" @click="disableCredScore"> Disable Credibility Score</button>
-      <button v-else @click="enableCredScore"> Enable Credibility Score</button>
+      <div class="buttons">
+        <button class="score" v-if="credScoreEnabled" @click="disableCredScore"> Disable Credibility Score</button>
+        <button class="score" v-else @click="enableCredScore"> Enable Credibility Score</button>
+        <button class="post" @click="submit">
+        Post
+        </button>
+
+      </div>
 
       <section class="sources" v-if="credScoreEnabled">
       <article v-for="source in listedSources">
@@ -45,11 +50,8 @@
       <p>{{ alert }}</p>
     </article>
     </section>
-
     </article>
-    <button @click="submit">
-      Create Freet
-    </button>
+
   </article>
 </template>
 
@@ -144,6 +146,11 @@ export default {
 </script>
 
 <style scoped>
+
+.all {
+  background-color: white;
+}
+
 form {
   border: 1px solid #111;
   padding: 0.5rem;
@@ -157,6 +164,34 @@ form {
 article > div {
   display: flex;
   flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.score {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  border: 5px solid rgb(8, 158, 18);
+  background-color: rgb(8, 158, 18);
+  margin-top: 5px;
+}
+
+.buttons {
+  display: inline;
+  justify-content: space-between;
+}
+
+.post {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: medium;
+  color:white;
+  border-radius: 20px;
+  border: 5px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+  margin-top: 5px;
+  margin-left: 67%;
 }
 
 form > article p {
@@ -176,4 +211,7 @@ textarea {
    font-family: inherit;
    font-size: inherit;
 }
+
 </style>
+
+
