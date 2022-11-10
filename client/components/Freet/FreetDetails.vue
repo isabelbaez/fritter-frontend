@@ -35,10 +35,11 @@
 
       <div class="directoryLoop" v-if="showingDirectory">
         <div class="threadWrapper" v-for="dirFreet in threadFreets">
-        <router-link class="threadLink"
-          :to="`/freet/${dirFreet._id}`">
-          Freet {{threadFreets.indexOf(dirFreet) + 1}}
-        </router-link>
+          <router-link class="threadLink"
+            :to="`/freet/${dirFreet._id}`"
+            @click.native="refresh">
+            Freet {{threadFreets.indexOf(dirFreet) + 1}}
+          </router-link>
       </div>
       </div>
       </div>
