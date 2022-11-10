@@ -86,7 +86,7 @@ nav {
 }
 
 .title {
-    font-size: 70px;
+    font-size: 60px;
     margin: 0 5px;
 }
 

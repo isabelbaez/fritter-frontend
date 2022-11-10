@@ -609,7 +609,7 @@ export default {
 .mainInfo {
   display: flex;
   justify-content:space-between;
-  width: 53%;
+  width: 60%;
 }
 .author {
   font-family: Arial, Helvetica, sans-serif;
@@ -648,7 +648,7 @@ export default {
 }
 
 .directory{
-  padding-left: 30%;
+  padding-left: 20%;
 }
 
 .credScore{
@@ -681,7 +681,7 @@ export default {
 
 .cred {
   display: flex;
-  width: 35%;
+  width: 40%;
   justify-content:space-between;
   font-weight: bold;
 }
