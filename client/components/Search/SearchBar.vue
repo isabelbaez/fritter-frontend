@@ -160,11 +160,6 @@ export default {
     } catch (e) {
       //this.$store.commit('alert', e, 'error');
     }
-  },
-  methods: {
-    notYou(user) {
-      return (user !== this.$store.state.user);
-    }
   }
 };
 </script>
