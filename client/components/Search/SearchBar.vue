@@ -20,7 +20,6 @@
         :key="user"
         :class="user">
         <router-link
-          v-if="$store.state.username"
           :to="`/profile/${user}`"
           @click.native="refreshProfile(user)"
           param = user
@@ -28,8 +27,10 @@
           {{user}} 
         </router-link>
 
-        <button v-if="isFollowing(user)" @click="unfollowUser(user)">Unfollow</button>
-        <button v-else @click="followUser(user)">Follow</button>
+        <div v-if="$store.state.username !== user">
+          <button v-if="isFollowing(user)" @click="unfollowUser(user)">Unfollow</button>
+          <button v-else @click="followUser(user)">Follow</button>
+      </div>
 
       </article>
     </article>
@@ -160,6 +161,11 @@ export default {
       //this.$store.commit('alert', e, 'error');
     }
   },
+  methods: {
+    notYou(user) {
+      return (user !== this.$store.state.user);
+    }
+  }
 };
 </script>
 

@@ -121,9 +121,10 @@ export default {
   data() {
     return {
       isFollowing: false,
+      userScore: undefined
     }
   },
-  mounted() {
+  async mounted() {
     this.$refs.getLikesForm.submit(this.$route.params.username);
     this.$refs.getRefreetsForm.submit(this.$route.params.username);
     this.$refs.getCommentsForm.submit(this.$route.params.username);

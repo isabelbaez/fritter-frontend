@@ -27,6 +27,20 @@ router.get(
   }
 );
 
+router.get(
+  '/user',
+  [],
+  async (req: Request, res: Response) => {
+    if (req.query.username) {
+      const user = await UserCollection.findOneByUsername(req.query.username.toString());
+      res.status(200).json({
+        message: 'Your user info was found successfully.',
+        user: user ? util.constructUserResponse(user) : null
+      });
+    }
+  }
+);
+
 /**
  * Sign in user.
  *
