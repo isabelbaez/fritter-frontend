@@ -31,12 +31,12 @@
         </button>
 
         <div class="directoryLoop" v-if="showingDirectory">
-          <router-link v-for="dirFreet in threadFreets"
+          <div class="threadWrapper" v-for="dirFreet in threadFreets">
+          <router-link class="threadLink"
             :to="`/freet/${dirFreet._id}`">
-            {{threadFreets.indexOf(dirFreet) + 1}}
-            {{freet.content.slice(0, 20)}}...
+            Freet {{threadFreets.indexOf(dirFreet) + 1}}
           </router-link>
-          <div class="directory"></div>
+        </div>
         </div>
       </div>
 
@@ -709,6 +709,37 @@ export default {
 
 .credScore{
   font-size: large;
+}
+
+.threadWrapper{
+  background-color: white;
+  padding-left: 5%;
+  padding-right: 5%;
+  width: 100%;
+}
+
+.threadLink:link{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.threadLink:visited{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.threadLink:hover{
+  color:deepskyblue;
+  text-decoration: underline;
+}
+
+.directoryLoop{
+  display: block;
+  justify-content: left;
+  border-radius: 20px;
+  margin-top: 20%;
+  background-color: blue;
+  width: 80px;
 }
 
 .credScoreRed{

@@ -27,20 +27,19 @@
         Posted at {{ freet.dateCreated}}
       </p>
     </div>
-      <div class="directory" v-if="freet.threadId !== 'Disabled'">
+    <div class="directory" v-if="freet.threadId !== 'Disabled'">
 
       <button class="dirButton" @click="toggleDirectory()">
         {{getThreadIndex()}}/{{threadFreets.length}}
       </button>
 
       <div class="directoryLoop" v-if="showingDirectory">
-        <router-link v-for="dirFreet in threadFreets"
-          :to="`/freet/${dirFreet._id}`"
-          @click.native="refresh">
-          {{threadFreets.indexOf(dirFreet) + 1}}
-          {{freet.content.slice(0, 20)}}...
+        <div class="threadWrapper" v-for="dirFreet in threadFreets">
+        <router-link class="threadLink"
+          :to="`/freet/${dirFreet._id}`">
+          Freet {{threadFreets.indexOf(dirFreet) + 1}}
         </router-link>
-        <div class="directory"></div>
+      </div>
       </div>
       </div>
 
@@ -654,7 +653,7 @@ export default {
 }
 
 .directory{
-  padding-left: 20%;
+  padding-left: 10%;
 }
 
 .credScore{
@@ -690,6 +689,37 @@ export default {
   width: 40%;
   justify-content:space-between;
   font-weight: bold;
+}
+
+.threadWrapper{
+  background-color: white;
+  padding-left: 5%;
+  padding-right: 5%;
+  width: 100%;
+}
+
+.threadLink:link{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.threadLink:visited{
+  color:deepskyblue;
+  text-decoration: none;
+}
+
+.threadLink:hover{
+  color:deepskyblue;
+  text-decoration: underline;
+}
+
+.directoryLoop{
+  display: block;
+  justify-content: left;
+  border-radius: 20px;
+  margin-top: 20%;
+  background-color: blue;
+  width: 80px;
 }
 
 .contest{

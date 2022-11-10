@@ -13,11 +13,9 @@ Default page that also displays freets
           <FollowUserForm
             ref="followUserForm"/>
 
-          <div v-if="$route.params.username !== $store.state.username">
-
-          <button v-if="isFollowing" @click="unfollowUser()">Unfollow</button>
-          <button v-else @click="followUser()">Follow</button>
-
+          <div class="follow" v-if="$route.params.username !== $store.state.username">
+            <button class="followButton" v-if="isFollowing" @click="unfollowUser()">Unfollow</button>
+            <button class="followButton" v-else @click="followUser()">Follow</button>
           </div>
           </div>
       </div>
@@ -188,6 +186,11 @@ header, header > * {
 
 button {
     margin-right: 10px;
+}
+
+.follow {
+  position: fixed;
+  z-index: 10;
 }
 
 section .scrollbox {

@@ -8,13 +8,16 @@
 
   <div class="welcome" v-if="$store.state.username">
         <h2 class="home">Home</h2>
-        <button class="filter" v-if="credFilterEnabled" @click="disableCredFilter"> Disable Credibility Filter</button>
-        <button class="filter" v-else @click="enableCredFilter"> Enable Credibility Filter</button>
+        <button class="filter" @click="openCredFilter = !openCredFilter"> CredibilityFilter</button>
         <SearchBar />
   </div>
 
-  <div class="filterContainer" v-if="credFilterEnabled">
-  <CredFilterForm/>
+  <div class="filterContainer" v-if="openCredFilter">
+
+    <button class="enable" v-if="credFilterEnabled" @click="disableCredFilter"> Disable Credibility Filter</button>
+    <button class="enable" v-else @click="enableCredFilter"> Enable Credibility Filter</button>
+
+    <CredFilterForm v-if="credFilterEnabled"/>
   </div>
 
   <main class="page">
@@ -97,6 +100,7 @@ export default {
       credFilterEnabled: false,
       isThread: false,
       posting: false,
+      openCredFilter: false,
     }
   },
   methods: {
@@ -166,8 +170,8 @@ section {
   border-radius: 10px;
   padding: 30px;
   width: 27%;
-  height: 40%;
-  display: flex;
+  height: 55%;
+  display: block;
   justify-content: space-between;
   z-index: 1;
 }
@@ -207,6 +211,20 @@ button {
   font-size: large;
   color:white;
   height: 30%;
+  border-radius: 20px;
+  margin-top: 5%;
+  margin-left: 20px;
+  border: 5px solid rgb(255, 174, 0);
+  background-color: rgb(255, 174, 0);
+}
+
+
+.enable {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: large;
+  color:white;
+  height: 10%;
   border-radius: 20px;
   margin-top: 5%;
   margin-left: 20px;
