@@ -2,7 +2,7 @@
 <!-- User should be NOT authenticated in order to see this page -->
 
 <template>
-  <main>
+  <main class="page">
     <section>
       <header>
         <h2>New to Fritter?</h2>
@@ -30,3 +30,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.page{
+  margin-left: 20%;
+}
+</style>
