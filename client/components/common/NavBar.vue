@@ -78,7 +78,7 @@ nav {
     padding: 1vw 2vw;
     font-family: Arial, Helvetica, sans-serif;
     background-color: white;
-    border-right: 1px solid rgb(184, 184, 184);
+    border-right: 0.5px solid rgb(228, 228, 228);
     height: 100%;
     width: 25%;
     position: fixed;

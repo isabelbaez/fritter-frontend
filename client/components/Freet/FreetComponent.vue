@@ -598,7 +598,7 @@ export default {
 
 <style scoped>
 .freet {
-    border: 1px solid rgb(190, 190, 190);
+    border: 0.5px solid rgb(228, 228, 228);
     padding: 20px;
     position: relative;
     border-radius: 3px;
